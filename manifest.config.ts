@@ -6,7 +6,7 @@ const { version } = packageJson
 
 const name = "ChatGPT Sugar: Make Your ChatGPT A Little Sweeter"
 const description =
-  "Seamlessly enhances your ChatGPT interactions, adding a touch of sweetness to every conversation."
+  "A collection of subtle and delightful tools, seamlessly integrated into your ChatGPT experience."
 
 export default defineManifest(async (env) => {
   return {

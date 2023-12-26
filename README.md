@@ -1,30 +1,59 @@
-# React + TypeScript + Vite
+<div align="center">
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# ChatGPT Sugar
 
-Currently, two official plugins are available:
+Make Your ChatGPT A Little Sweeter
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[![license][license-image]][license-url]
+[![release][release-image]][release-url]
 
-## Expanding the ESLint configuration
+### Install
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+[![chrome][chrome-image]][chrome-url] [![manual][manual-image]][manual-url]
 
-- Configure the top-level `parserOptions` property like this:
+[license-image]: https://img.shields.io/badge/license-GPLv3.0-blue.svg
+[license-url]: https://github.com/yaozhiwang/chatgpt-sugar/blob/master/LICENSE
+[release-image]:
+  https://img.shields.io/github/v/release/yaozhiwang/chatgpt-sugar?color=blue
+[release-url]: https://github.com/yaozhiwang/chatgpt-sugar/releases/latest
+[chrome-image]:
+  https://img.shields.io/badge/-Chrome-brightgreen?style=for-the-badge&logo=google-chrome&logoColor=white
+[chrome-url]: https://chatgptsugar.xyz/chrome?utm_source=github
+[manual-image]:
+  https://img.shields.io/badge/-Manual-lightgrey?style=for-the-badge
+[manual-url]: #manual-installation
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+### Screenshots
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+[![promo][promo-image]][promo-url]
+
+[promo-image]: http://img.youtube.com/vi/1TVeOzhWeA8/0.jpg
+[promo-url]: https://www.youtube.com/watch?v=1TVeOzhWeA8
+
+</div>
+
+ChatGPT Sugar is a Chrome extension designed to enrich your daily interactions
+with ChatGPT. It's a collection of subtle and delightful tools, seamlessly
+integrated into your ChatGPT experience.
+
+## Features
+
+- ChatGPT Journey: Transform your ChatGPT interactions into an illustrative
+  timeline.
+
+## Manual Installation
+
+- Download `chatgpt-sugar.zip` from
+  [Releases](https://github.com/yaozhiwang/chatgpt-sugar/releases)
+- Unzip the file
+- In Chrome go to the extensions page (chrome://extensions)
+- Enable Developer Mode
+- Drag the unzipped folder anywhere on the page to import it (do not delete the
+  folder afterward)
+
+## Build from source
+
+1. Clone the repo
+2. Install dependencies with `bun install`
+3. `bun run build`
+4. Load `dist/` directory to your browser
