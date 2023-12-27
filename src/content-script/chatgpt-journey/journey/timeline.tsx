@@ -1,12 +1,49 @@
-import { JourneyData, JourneyStats } from "../data"
+import { useMemo } from "react"
+
+import { classNames } from "@/lib/utils"
+
+import { Event, JourneyData, JourneyStats } from "../data"
+
+type DisplayEvent = Event & { left: boolean }
 
 export default function Timeline({ data }: { data: JourneyData }) {
+  const events = useMemo(() => {
+    const events: DisplayEvent[] = []
+    let i = 0,
+      j = 0
+    while (i < data.events.chatgpt.length && j < data.events.user.length) {
+      if (
+        data.events.chatgpt[i].date.getTime() <=
+        data.events.user[j].date.getTime()
+      ) {
+        events.push({ ...data.events.chatgpt[i], left: true })
+        i++
+      } else {
+        events.push({ ...data.events.user[j], left: false })
+        j++
+      }
+    }
+
+    if (i < data.events.chatgpt.length) {
+      data.events.chatgpt.slice(i).forEach((e) => {
+        return events.push({ ...e, left: true })
+      })
+    }
+
+    if (j < data.events.user.length) {
+      data.events.user.slice(j).forEach((e) => {
+        return events.push({ ...e, left: false })
+      })
+    }
+
+    return events
+  }, [data])
+
   return (
-    <div className="flex w-full flex-col items-center">
-      <h2 className="py-8 text-xl font-medium md:text-2xl">
-        My ChatGPT Journey
-      </h2>
+    <div className="flex w-full flex-col items-center gap-8">
+      <h2 className="text-xl font-medium md:text-2xl">My ChatGPT Journey</h2>
       <Stats stats={data.stats} />
+      <Events events={events} />
     </div>
   )
 }
@@ -64,6 +101,42 @@ function Stats({ stats }: { stats: JourneyStats }) {
           created with DALL-E 3
         </p>
       )}
+    </div>
+  )
+}
+
+function Events({ events }: { events: DisplayEvent[] }) {
+  return (
+    <div className="relative my-10 h-full w-full overflow-hidden">
+      <div className="absolute right-1/2 h-full border-2" />
+      {events.map((event, i) => (
+        <div
+          key={i}
+          className={classNames(
+            "mb-8 flex w-full items-center justify-between",
+            event.left ? "flex-row-reverse" : "flex-row"
+          )}>
+          <div className="w-5/12"></div>
+          <div
+            className={classNames(
+              "w-5/12 px-1 py-4",
+              event.left ? "text-right" : "text-left"
+            )}>
+            <p className="mb-3 text-base text-yellow-300">
+              {event.date.toLocaleDateString("en-US", {
+                weekday: undefined,
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+              })}
+            </p>
+            <h4 className="mb-3 text-lg font-bold md:text-2xl">{event.name}</h4>
+            <p className="text-sm leading-snug md:text-base">
+              {event.descriptoin}
+            </p>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
