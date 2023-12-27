@@ -2,7 +2,7 @@ import {
   Conversation,
   getAllConversations,
   getConversation,
-  getSharedConversationsCount,
+  getSharedConversations,
   getUser
 } from "@/lib/api"
 
@@ -114,7 +114,7 @@ type UserEvent = {
 async function collectStatsAndUserEvents(
   conversations: Conversation[]
 ): Promise<{ stats: JourneyStats; events: Event[] }> {
-  const totalShared = await getSharedConversationsCount()
+  const shared = await getSharedConversations({ limit: 1 })
   const user = await getUser()
 
   const stats: JourneyStats = {
@@ -122,7 +122,7 @@ async function collectStatsAndUserEvents(
       (Date.now() - user.created.getTime()) / (1000 * 60 * 60 * 24)
     ),
     totalConversations: conversations.length,
-    totalShared,
+    totalShared: shared.total,
     totalMessages: 0,
     totalGPT4Messages: 0,
     totalVisionMessages: 0,
@@ -260,7 +260,18 @@ async function collectStatsAndUserEvents(
     events.push(maxActiveDate)
   }
 
-  return { stats, events }
+  if (shared.total > 0) {
+    events.push({
+      name: "First Shared Conversation",
+      date: shared.items[0].create_time,
+      link: `https://chat.openai.com/share/${shared.items[0].id}`
+    })
+  }
+
+  return {
+    stats,
+    events: events.sort((a, b) => a.date.getTime() - b.date.getTime())
+  }
 }
 
 function userEventsToEvents(userEvents: UserEvent[]): Event[] {
@@ -274,5 +285,4 @@ function userEventsToEvents(userEvents: UserEvent[]): Event[] {
         data: u.data
       }
     })
-    .sort((a, b) => a.date.getTime() - b.date.getTime())
 }

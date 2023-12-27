@@ -83,7 +83,7 @@ export async function getAllConversations(): Promise<Conversation[]> {
     total = data.total
   } while (conversations.length < total)
 
-  return conversations
+  return conversations.reverse()
 }
 
 export async function getConversations({
@@ -101,17 +101,17 @@ export async function getConversations({
   )
 
   const data = await resp.json()
-  return { ...data, items: data.items.map(ConversationConverter).reverse() }
+  return { ...data, items: data.items.map(ConversationConverter) }
 }
 
-export async function getSharedConversationsCount() {
+export async function getSharedConversations({ limit }: { limit: number }) {
   const resp = await requestBackendAPI(
     "GET",
-    `/shared_conversations?offset=0&limit=1&order=created`
+    `/shared_conversations?offset=0&limit=${limit}&order=created`
   )
 
   const data = await resp.json()
-  return data.total
+  return { ...data, items: data.items.map(ConversationConverter) }
 }
 
 export async function getUser(): Promise<User> {
