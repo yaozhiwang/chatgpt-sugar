@@ -28,22 +28,7 @@ export type Conversation = {
       id: string
       children: string[]
       parent: string
-      message: {
-        id: string
-        author: { role: "system" | "user" | "assitant" | "tool"; name?: string }
-        content: {
-          content_type: "text" | "code" | "multimodal_text"
-          recipient: string
-          parts?: (
-            | string
-            | { content_type: "image_asset_pointer"; asset_pointer: string }
-          )[]
-          language?: string
-          text?: string
-        }
-        create_time: number
-        meta_data: { model_slug?: string }
-      }
+      message: Message
     }
   }
 }
@@ -104,7 +89,7 @@ export async function getAllConversations(): Promise<Conversation[]> {
 export async function getConversations({
   offset,
   limit,
-  order = "updated"
+  order = "created"
 }: {
   offset: number
   limit: number
@@ -116,7 +101,7 @@ export async function getConversations({
   )
 
   const data = await resp.json()
-  return { ...data, items: data.items.map(ConversationConverter) }
+  return { ...data, items: data.items.map(ConversationConverter).reverse() }
 }
 
 export async function getSharedConversationsCount() {
