@@ -137,6 +137,16 @@ function Events({ events }: { events: DisplayEvent[] }) {
           </div>
         </div>
       ))}
+      <div className="mb-8 flex w-full items-center justify-between">
+        <div className="w-5/12"></div>
+        <div className="w-5/12 px-1 py-4 text-left">
+          <p className="mb-3 text-base text-yellow-300">Today</p>
+          <p className="text-sm leading-snug md:text-base">
+            Your journey hasn't ended. Continue to discover and engage with
+            ChatGPT’s evolving landscape.
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
