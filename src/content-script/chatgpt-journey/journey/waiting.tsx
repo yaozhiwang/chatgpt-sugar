@@ -50,7 +50,15 @@ export default function Waiting({
           </li>
         </ul>
       </div>
-      {generating && <Spinner className="h-8 w-8" />}
+      {generating && (
+        <div className="not-prose flex flex-col items-center gap-2">
+          <Spinner className="h-8 w-8" />
+          <p className="text-token-text-tertiary text-sm">
+            It may take some time to collect the data if you had lots of
+            conversations...
+          </p>
+        </div>
+      )}
       {error && <p className="text-base text-red-500">{error} </p>}
     </div>
   )
