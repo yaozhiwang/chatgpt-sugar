@@ -1,29 +1,100 @@
 import { AppError, ErrorCode } from "./error"
 
+export type Message = {
+  id: string
+  author: { role: "system" | "user" | "assistant" | "tool"; name?: string }
+  content: {
+    content_type: "text" | "code" | "multimodal_text"
+    recipient: string
+    parts?: (
+      | string
+      | { content_type: "image_asset_pointer"; asset_pointer: string }
+    )[]
+    language?: string
+    text?: string
+  }
+  create_time: Date
+  metadata: { model_slug?: string }
+}
+
 export type Conversation = {
   id: string
   create_time: Date
   update_time: Date
   title: string
   is_archive: boolean
-}
-
-const ConversationConverter = (item: any): Conversation => {
-  return {
-    ...item,
-    create_time: new Date(item.create_time),
-    update_time: new Date(item.update_time)
+  mapping: {
+    [key: string]: {
+      id: string
+      children: string[]
+      parent: string
+      message: {
+        id: string
+        author: { role: "system" | "user" | "assitant" | "tool"; name?: string }
+        content: {
+          content_type: "text" | "code" | "multimodal_text"
+          recipient: string
+          parts?: (
+            | string
+            | { content_type: "image_asset_pointer"; asset_pointer: string }
+          )[]
+          language?: string
+          text?: string
+        }
+        create_time: number
+        meta_data: { model_slug?: string }
+      }
+    }
   }
 }
 
-export async function getAllConversations() {
+export type User = {
+  created: Date
+  name: string
+  picture: string
+}
+
+const ConversationConverter = (item: any): Conversation => {
+  if (item.mapping) {
+    for (const id in item.mapping) {
+      const message = item.mapping[id].message
+      if (!message || !message.create_time) {
+        continue
+      }
+      message.create_time = DateConverter(message.create_time)
+    }
+  }
+  return {
+    ...item,
+    create_time: DateConverter(item.create_time),
+    update_time: DateConverter(item.update_time)
+  }
+}
+
+const DateConverter = (d: string | number): Date => {
+  if (typeof d === "string") {
+    return new Date(d)
+  } else if (typeof d === "number") {
+    const str = d.toString()
+    if (str.length === 13) {
+      return new Date(d)
+    }
+    const int = str.split(".")[0]
+    if (int.length === 10) {
+      return new Date(Math.floor(d * 1000))
+    }
+  }
+  throw new Error(`unknown format of date: ${d}`)
+}
+
+export async function getAllConversations(): Promise<Conversation[]> {
   const conversations: Conversation[] = []
   const limit = 50
   let total = 0
   do {
     const offset = conversations.length
     const data = await getConversations({ offset, limit })
-    conversations.push(...data.items.map(ConversationConverter))
+    conversations.push(...data.items)
     total = data.total
   } while (conversations.length < total)
 
@@ -45,7 +116,31 @@ export async function getConversations({
   )
 
   const data = await resp.json()
-  return data
+  return { ...data, items: data.items.map(ConversationConverter) }
+}
+
+export async function getSharedConversationsCount() {
+  const resp = await requestBackendAPI(
+    "GET",
+    `/shared_conversations?offset=0&limit=1&order=created`
+  )
+
+  const data = await resp.json()
+  return data.total
+}
+
+export async function getUser(): Promise<User> {
+  const resp = await requestBackendAPI("GET", `/me`)
+
+  const data = await resp.json()
+  return { ...data, created: DateConverter(data.created) }
+}
+
+export async function getConversation(id: string) {
+  const resp = await requestBackendAPI("GET", `/conversation/${id}`)
+
+  const data = await resp.json()
+  return { ...ConversationConverter({ ...data, id: data.conversation_id }) }
 }
 
 let accessToken = ""
