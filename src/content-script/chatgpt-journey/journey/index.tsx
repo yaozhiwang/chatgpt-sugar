@@ -29,6 +29,22 @@ export default function Journey() {
     }
   })
 
+  useEffect(() => {
+    const listener = () => {
+      window.location.assign("/")
+    }
+    const newChatButtons = document.querySelectorAll("a[href='/']")
+    newChatButtons.forEach((btn) => {
+      btn.addEventListener("click", listener)
+    })
+
+    return () => {
+      newChatButtons.forEach((btn) => {
+        btn.removeEventListener("click", listener)
+      })
+    }
+  }, [])
+
   return (
     <div className="text-token-text-primary absolute left-0 top-0 z-30 w-full bg-white dark:bg-gray-800">
       <div className="sticky top-0 z-10 mb-1.5 flex h-14 items-center justify-between bg-white p-2 font-semibold dark:bg-gray-800">
