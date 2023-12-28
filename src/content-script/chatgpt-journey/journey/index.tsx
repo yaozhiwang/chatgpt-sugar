@@ -1,7 +1,8 @@
 import { useState } from "react"
 
 import { Dialog } from "@/components/dialog"
-import { Share } from "@/components/icons"
+import { Share, Spinner } from "@/components/icons"
+import { detectTheme } from "@/lib/utils"
 import { useToPng } from "@hugocxl/react-to-image"
 
 import { JourneyData } from "../data"
@@ -12,10 +13,16 @@ export default function Journey() {
   const [journeyData, setJourneData] = useState<JourneyData>()
 
   const [openDialog, setOpenDialog] = useState(false)
+
   const [imageData, setImageData] = useState<string>()
-  const [state, convertToPng, timelineRef] = useToPng<HTMLDivElement>({
+  const [imageError, setImageError] = useState<string>()
+  const [_, convertToPng, timelineRef] = useToPng<HTMLDivElement>({
+    backgroundColor: detectTheme() === "dark" ? "#000000" : "#FFFFFF",
     onSuccess: (data) => {
       setImageData(data)
+    },
+    onError: (error) => {
+      setImageError(error)
     }
   })
 
@@ -25,7 +32,12 @@ export default function Journey() {
         <div className="px-3 py-2 text-lg font-medium">ChatGPT Journey</div>
         <button
           className="btn btn-neutral btn-small border-token-border-medium relative flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-lg border focus:ring-0"
-          onClick={() => setOpenDialog(true)}>
+          onClick={() => {
+            setOpenDialog(true)
+            setImageError("")
+            setImageData("")
+            convertToPng()
+          }}>
           <Share className="icon-md" />
         </button>
       </div>
@@ -42,9 +54,7 @@ export default function Journey() {
       </div>
       {openDialog && (
         <Dialog
-          children={
-            <ShareDialog convertToPng={convertToPng} imageData={imageData} />
-          }
+          children={<ShareDialog imageData={imageData} error={imageError} />}
           title="Share your journey"
           onClose={() => {
             setOpenDialog(false)
@@ -56,19 +66,50 @@ export default function Journey() {
 }
 
 function ShareDialog({
-  convertToPng,
-  imageData
+  imageData,
+  error
 }: {
-  convertToPng: () => void
   imageData?: string
+  error?: string
 }) {
+  function download(imageData: string) {
+    const a = document.createElement("a")
+    a.style.display = "none"
+    a.href = imageData
+    a.download = `ChatGPT-journey.png`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }
+
+  if (!imageData) {
+    return (
+      <div className="flex min-w-80 flex-col items-center justify-center">
+        <Spinner className="h-8 w-8" />
+        <p className="text-token-text-tertiary text-sm">
+          Generating image for sharing...
+        </p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-w-80 flex-col items-center">
+        <div className="flex flex-col gap-2 text-red-500">
+          <p className="text-xl font-medium">Error generating image</p>
+          <p>{error}</p>
+        </div>
+      </div>
+    )
+  }
   return (
-    <div className="flex flex-col">
-      {imageData && <img src={imageData} />}
+    <div className="flex flex-col gap-4">
+      <img className="rounded-xl border" src={imageData} alt="timeline image" />
       <button
         className="btn btn-primary relative m-auto"
         onClick={() => {
-          convertToPng()
+          download(imageData)
         }}>
         Download image
       </button>

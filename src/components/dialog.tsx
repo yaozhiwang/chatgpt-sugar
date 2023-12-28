@@ -18,7 +18,7 @@ export function Dialog({
   })
 
   return (
-    <div className="fixed inset-0 z-10 bg-black/50 dark:bg-gray-600/70">
+    <div className="fixed inset-0 z-40 bg-black/50 dark:bg-gray-600/70">
       <div className="grid h-full w-full grid-cols-[10px_1fr_10px] grid-rows-[minmax(10px,_1fr)_auto_minmax(10px,_1fr)] overflow-y-auto md:grid-rows-[minmax(20px,_1fr)_auto_minmax(20px,_1fr)]">
         <div
           ref={wrapperRef}

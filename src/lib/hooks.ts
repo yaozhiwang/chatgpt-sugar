@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect } from "react"
+import { MutableRefObject, useEffect, useState } from "react"
 
 export function useOutsideAlerter(
   ref: MutableRefObject<HTMLElement | null>,
@@ -20,4 +20,21 @@ export function useOutsideAlerter(
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [ref, onClickOutside])
+}
+
+export function useTheme() {
+  const [theme, setTheme] = useState<"dark" | "light">()
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-color-scheme: dark)")
+    const listener = (event: MediaQueryListEvent) => {
+      setTheme(event.matches ? "dark" : "light")
+    }
+    query.addEventListener("change", listener)
+    return () => {
+      query.removeEventListener("change", listener)
+    }
+  }, [])
+
+  return theme
 }

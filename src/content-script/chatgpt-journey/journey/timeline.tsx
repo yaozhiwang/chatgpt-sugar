@@ -49,7 +49,7 @@ export default function Timeline({ data }: { data: JourneyData }) {
   }, [data])
 
   return (
-    <div className="flex w-full flex-col items-center gap-8">
+    <div className="flex w-full flex-col items-center gap-8 px-2 py-5">
       <Header user={data.user} stats={data.stats} />
       <Stats stats={data.stats} />
       <Events events={events} />
@@ -149,7 +149,7 @@ function Stats({ stats }: { stats: JourneyStats }) {
 
 function Events({ events }: { events: DisplayEvent[] }) {
   return (
-    <div className="relative my-10 h-full w-full overflow-hidden">
+    <div className="relative mt-10 h-full w-full overflow-hidden">
       <div className="absolute right-1/2 h-full border-2" />
       {events.map((event, i) => (
         <div
