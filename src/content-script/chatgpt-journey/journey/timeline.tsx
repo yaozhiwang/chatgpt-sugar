@@ -50,7 +50,6 @@ export default function Timeline({ data }: { data: JourneyData }) {
 
   return (
     <div className="flex w-full flex-col items-center gap-8">
-      <h2 className="text-xl font-medium md:text-2xl">My ChatGPT Journey</h2>
       <Header user={data.user} stats={data.stats} />
       <Stats stats={data.stats} />
       <Events events={events} />
