@@ -16,6 +16,7 @@ export type Event = {
 
 export type JourneyStats = {
   age: number
+  activeDays: number
   totalConversations: number
   totalShared: number
   totalMessages: number
@@ -169,6 +170,7 @@ async function collectStatsAndUserEvents(
     age: Math.ceil(
       (Date.now() - user.created.getTime()) / (1000 * 60 * 60 * 24)
     ),
+    activeDays: 0,
     totalConversations: conversations.length,
     totalShared: shared.total,
     totalMessages: 0,
@@ -292,6 +294,7 @@ async function collectStatsAndUserEvents(
 
   const events = userEventsToEvents(Object.values(userEvents))
 
+  stats.activeDays = Object.keys(dailyMessages).length
   if (Object.keys(dailyMessages).length > 0) {
     let maxMsgs = 0,
       maxDate = undefined
