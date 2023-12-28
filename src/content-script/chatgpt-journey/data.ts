@@ -1,5 +1,6 @@
 import {
   Conversation,
+  User,
   getAllConversations,
   getConversation,
   getSharedConversations,
@@ -24,6 +25,7 @@ export type JourneyStats = {
 }
 
 export type JourneyData = {
+  user: User
   stats: JourneyStats
   events: {
     chatgpt: Event[]
@@ -91,9 +93,10 @@ export async function collectJourneyData(): Promise<JourneyData> {
     conversations.push(await getConversation(conversation.id))
   }
 
-  const { stats, events } = await collectStatsAndUserEvents(conversations)
+  const { user, stats, events } = await collectStatsAndUserEvents(conversations)
 
   return {
+    user,
     stats,
     events: {
       chatgpt: ChatGPTEvents,
@@ -158,7 +161,7 @@ class UserEvent {
 
 async function collectStatsAndUserEvents(
   conversations: Conversation[]
-): Promise<{ stats: JourneyStats; events: Event[] }> {
+): Promise<{ user: User; stats: JourneyStats; events: Event[] }> {
   const shared = await getSharedConversations({ limit: 1 })
   const user = await getUser()
 
@@ -318,6 +321,7 @@ async function collectStatsAndUserEvents(
   }
 
   return {
+    user,
     stats,
     events: events.sort((a, b) => a.date.getTime() - b.date.getTime())
   }

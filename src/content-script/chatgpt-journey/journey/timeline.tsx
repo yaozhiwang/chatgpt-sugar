@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 
+import { User } from "@/lib/api"
 import { classNames } from "@/lib/utils"
 
 import { Event, JourneyData, JourneyStats } from "../data"
@@ -50,8 +51,27 @@ export default function Timeline({ data }: { data: JourneyData }) {
   return (
     <div className="flex w-full flex-col items-center gap-8">
       <h2 className="text-xl font-medium md:text-2xl">My ChatGPT Journey</h2>
+      <Header user={data.user} days={data.stats.age} />
       <Stats stats={data.stats} />
       <Events events={events} />
+    </div>
+  )
+}
+
+function Header({ user, days }: { user: User; days: number }) {
+  return (
+    <div className="flex w-full flex-col items-center">
+      <div className="gizmo-shadow-stroke flex h-20 w-20 items-center justify-center overflow-hidden rounded-full">
+        <div className="relative flex">
+          <img alt="user photo" src={user.picture} />
+        </div>
+      </div>
+      <div className="mt-2 text-lg font-bold">{user.name}</div>
+      <div className="text-sm font-normal">
+        🌟 Enjoying the journey for{" "}
+        <span className="text-base text-green-600">{days}</span> days and
+        counting!
+      </div>
     </div>
   )
 }
@@ -134,7 +154,7 @@ function Events({ events }: { events: DisplayEvent[] }) {
             href={event.link}
             target="_blank"
             rel="noreferrer">
-            <p className="mb-3 text-base text-yellow-300">
+            <p className="mb-3 text-base text-green-600">
               {typeof event.date === "string"
                 ? event.date
                 : event.date.toLocaleDateString("en-US", {
@@ -144,7 +164,7 @@ function Events({ events }: { events: DisplayEvent[] }) {
                     day: "numeric"
                   })}
             </p>
-            <h4 className="mb-3 text-lg font-bold md:text-2xl">{event.name}</h4>
+            <h4 className="mb-3 text-lg font-bold md:text-xl">{event.name}</h4>
             <p className="text-sm leading-snug md:text-base">
               {event.description}
             </p>
