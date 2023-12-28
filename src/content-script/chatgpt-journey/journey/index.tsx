@@ -16,16 +16,16 @@ export default function Journey() {
 
   const [imageData, setImageData] = useState<string>()
   const [imageError, setImageError] = useState<string>()
-  const [showFooter, setShowFooter] = useState(false)
+  const [showImage, setShowImage] = useState(false)
   const [_, convertToPng, timelineRef] = useToPng<HTMLDivElement>({
     backgroundColor: detectTheme() === "dark" ? "#000000" : "#FFFFFF",
     onSuccess: (data) => {
       setImageData(data)
-      setShowFooter(false)
+      setShowImage(false)
     },
     onError: (error) => {
       setImageError(error)
-      setShowFooter(false)
+      setShowImage(false)
     }
   })
 
@@ -56,7 +56,7 @@ export default function Journey() {
               setOpenDialog(true)
               setImageError("")
               setImageData("")
-              setShowFooter(true)
+              setShowImage(true)
               setTimeout(() => {
                 convertToPng()
               })
@@ -69,10 +69,15 @@ export default function Journey() {
         <div className="mx-auto flex flex-1 gap-3 text-base md:max-w-3xl md:px-5 lg:max-w-[40rem] lg:px-1 xl:max-w-[48rem] xl:px-5">
           {journeyData ? (
             <div ref={timelineRef}>
+              {showImage && (
+                <p className="pb-3 pt-8 text-center text-xl font-bold">
+                  My ChatGPT Journey
+                </p>
+              )}
               <Timeline data={journeyData} />
-              {showFooter && (
-                <p className="px-3 py-2 text-right text-sm">
-                  Craft your unique ChatGPT journey at https://chatgptsugar.xyz
+              {showImage && (
+                <p className="px-3 pb-4 pt-2 text-right text-sm">
+                  Create your ChatGPT journey at https://chatgptsugar.xyz
                 </p>
               )}
             </div>
