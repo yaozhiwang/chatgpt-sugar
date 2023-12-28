@@ -65,15 +65,17 @@ function Header({ user, stats }: { user: User; stats: JourneyStats }) {
           <img alt="user photo" src={user.picture} />
         </div>
       </div>
-      <div className="mt-2 text-lg font-bold">{user.name}</div>
-      <div className="text-sm font-normal">
+      <div className="mt-2 w-full text-center text-lg font-bold">
+        {user.name}
+      </div>
+      <div className="w-full text-center text-sm font-normal">
         🌟 Enjoying the journey for{" "}
         <span className="text-base font-medium text-green-600">
           {stats.age}
         </span>{" "}
         days and counting!
       </div>
-      <div className="text-sm font-normal">
+      <div className="w-full text-center text-sm font-normal">
         Engaged on{" "}
         <span className="text-base font-medium text-green-600">
           {stats.activeDays}
@@ -87,59 +89,75 @@ function Header({ user, stats }: { user: User; stats: JourneyStats }) {
 function Stats({ stats }: { stats: JourneyStats }) {
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="border-token-border-medium flex flex-col gap-4 rounded-lg border px-2 py-4">
-        <div className="flex flex-col items-center gap-2">
+      <div className="border-token-border-medium flex w-full flex-col gap-4 rounded-lg border px-2 py-4">
+        <div className="flex w-full flex-col items-center gap-2">
           <p className="text-3xl font-bold text-green-600">
             {stats.totalConversations}
           </p>
-          <p className="text-sm font-normal">Total conversations</p>
+          <p className="w-full text-center text-sm font-normal">
+            Total conversations
+          </p>
         </div>
-        <div className="grid w-full grid-cols-1 md:grid-cols-3">
+        <div className="grid w-full grid-cols-1 md:!grid-cols-3">
           <div className="flex flex-col items-center">
             <p className="text-xl font-medium text-green-600">
               {Math.round(stats.totalConversations / stats.activeDays)}
             </p>
-            <p className="text-sm font-normal">Conversations per day</p>
+            <p className="w-full text-center text-sm font-normal">
+              Conversations per day
+            </p>
           </div>
           <div className="flex flex-col items-center">
             <p className="text-xl font-medium text-green-600">
               {Math.round(stats.totalMessages / stats.totalConversations)}
             </p>
-            <p className="text-sm font-normal">Messages per conversation</p>
+            <p className="w-full text-center text-sm font-normal">
+              Messages per conversation
+            </p>
           </div>
           <div className="flex flex-col items-center">
             <p className="text-xl font-bold text-green-600">
               {stats.totalShared}
             </p>
-            <p className="text-sm font-normal">Shared conversations</p>
+            <p className="w-full text-center text-sm font-normal">
+              Shared conversations
+            </p>
           </div>
         </div>
       </div>
-      <div className="border-token-border-medium flex flex-col gap-4 rounded-lg border px-2 py-4">
-        <div className="flex flex-col items-center gap-2">
+      <div className="border-token-border-medium flex w-full flex-col gap-4 rounded-lg border px-2 py-4">
+        <div className="flex w-full flex-col items-center gap-2">
           <p className="text-3xl font-bold text-green-600">
             {stats.totalMessages}
           </p>
-          <p className="text-sm font-normal">Total messages</p>
+          <p className="w-full text-center text-sm font-normal">
+            Total messages
+          </p>
         </div>
-        <div className="grid w-full grid-cols-1 md:grid-cols-3">
-          <div className="flex flex-col items-center">
+        <div className="grid w-full grid-cols-1 md:!grid-cols-3">
+          <div className="flex w-full flex-col items-center">
             <p className="text-xl font-medium text-green-600">
               {stats.totalGPT4Messages}
             </p>
-            <p className="text-sm font-normal">GPT4 messsages</p>
+            <p className="w-full text-center text-sm font-normal">
+              GPT4 messsages
+            </p>
           </div>
-          <div className="flex flex-col items-center">
+          <div className="flex w-full flex-col items-center">
             <p className="text-xl font-medium text-green-600">
               {stats.totalVisionMessages}
             </p>
-            <p className="text-sm font-normal">Messages with Vision</p>
+            <p className="w-full text-center text-sm font-normal">
+              Messages with Vision
+            </p>
           </div>
-          <div className="flex flex-col items-center">
+          <div className="flex w-full flex-col items-center">
             <p className="text-xl font-bold text-green-600">
               {stats.totalImageMessages}
             </p>
-            <p className="text-sm font-normal">Images created</p>
+            <p className="w-full text-center text-sm font-normal">
+              Images created
+            </p>
           </div>
         </div>
       </div>
