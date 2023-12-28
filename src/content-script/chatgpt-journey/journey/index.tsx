@@ -16,13 +16,16 @@ export default function Journey() {
 
   const [imageData, setImageData] = useState<string>()
   const [imageError, setImageError] = useState<string>()
+  const [showFooter, setShowFooter] = useState(false)
   const [_, convertToPng, timelineRef] = useToPng<HTMLDivElement>({
     backgroundColor: detectTheme() === "dark" ? "#000000" : "#FFFFFF",
     onSuccess: (data) => {
       setImageData(data)
+      setShowFooter(false)
     },
     onError: (error) => {
       setImageError(error)
+      setShowFooter(false)
     }
   })
 
@@ -36,7 +39,10 @@ export default function Journey() {
             setOpenDialog(true)
             setImageError("")
             setImageData("")
-            convertToPng()
+            setShowFooter(true)
+            setTimeout(() => {
+              convertToPng()
+            })
           }}>
           <Share className="icon-md" />
         </button>
@@ -46,6 +52,11 @@ export default function Journey() {
           {journeyData ? (
             <div ref={timelineRef}>
               <Timeline data={journeyData} />
+              {showFooter && (
+                <p className="px-3 py-2 text-right text-sm">
+                  Craft your unique ChatGPT journey at https://chatgptsugar.xyz
+                </p>
+              )}
             </div>
           ) : (
             <Waiting onGenerated={setJourneData} />
