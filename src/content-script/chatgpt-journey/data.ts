@@ -11,7 +11,6 @@ export type Event = {
   name: string
   descriptoin?: string
   link?: string
-  data?: { numMessages?: number }
 }
 
 export type JourneyStats = {
@@ -36,42 +35,51 @@ const ChatGPTEvents: Event[] = [
   {
     date: new Date("2022-11-30"),
     name: "ChatGPT launch",
-    link: "https://openai.com/blog/chatgpt"
+    link: "https://openai.com/blog/chatgpt",
+    descriptoin: "Cake day of ChatGPT"
   },
   {
     date: new Date("2023-02-01"),
     name: "ChatGPT Plus launch",
-    link: "https://openai.com/blog/chatgpt-plus"
+    link: "https://openai.com/blog/chatgpt-plus",
+    descriptoin: "Get get access to GPT-4, DALL-E 3 and GPTs"
   },
   {
     date: new Date("2023-03-23"),
     name: "ChatGPT plugins launch",
-    link: "https://openai.com/blog/chatgpt-plugins"
+    link: "https://openai.com/blog/chatgpt-plugins",
+    descriptoin: "The AppStore for ChatGPT"
   },
+  /*
   {
     date: new Date("2023-05-18"),
     name: "ChatGPT app for iOS launch",
     link: "https://openai.com/blog/introducing-the-chatgpt-app-for-ios"
   },
+  */
   {
     date: new Date("2023-07-20"),
     name: "Introducing custom instructions",
-    link: "https://openai.com/blog/custom-instructions-for-chatgpt"
+    link: "https://openai.com/blog/custom-instructions-for-chatgpt",
+    descriptoin: "Set your preferences, and ChatGPT will keep them in mind."
   },
   {
     date: new Date("2023-09-25"),
-    name: "GPT-4V launch",
-    link: "https://openai.com/blog/chatgpt-can-now-see-hear-and-speak"
+    name: "GPT-4 Vision launch",
+    link: "https://openai.com/blog/chatgpt-can-now-see-hear-and-speak",
+    descriptoin: "Chat about images"
   },
   {
     date: new Date("2023-10-09"),
     name: "DALL·E 3 launch",
-    link: "https://openai.com/blog/dall-e-3-is-now-available-in-chatgpt-plus-and-enterprise"
+    link: "https://openai.com/blog/dall-e-3-is-now-available-in-chatgpt-plus-and-enterprise",
+    descriptoin: "Create unique images from a simple conversation"
   },
   {
     date: new Date("2023-11-06"),
     name: "GPTs launch",
-    link: "https://openai.com/blog/introducing-gpts"
+    link: "https://openai.com/blog/introducing-gpts",
+    descriptoin: "Create your own versions of ChatGPT without coding"
   }
 ]
 
@@ -101,14 +109,51 @@ enum UserEventName {
   Milestone1000 = "1000th Conversation",
   FirstGPT4 = "First GPT-4 Conversation",
   FirstVision = "First Conversation with Vision",
-  FirstImage = "First Conversation with DALLE"
+  FirstImage = "Create First Image with DALLE"
 }
 
-type UserEvent = {
+type UserEventDataType = { numMessages?: number }
+class UserEvent {
   name: UserEventName
   date?: Date
   conversationId?: string
-  data?: { numMessages?: number }
+  data?: UserEventDataType
+
+  constructor({
+    name,
+    date,
+    conversationId,
+    data
+  }: {
+    name: UserEventName
+    date?: Date
+    conversationId?: string
+    data?: UserEventDataType
+  }) {
+    this.name = name
+    this.date = date
+    this.conversationId = conversationId
+    this.data = data
+  }
+
+  getDescription(): string {
+    switch (this.name) {
+      case UserEventName.First:
+        return "Where it all began."
+      case UserEventName.Milestone100:
+        return "Established a strong friendship with ChatGPT."
+      case UserEventName.Milestone1000:
+        return "ChatGPT became an indispensable partner to you."
+      case UserEventName.Longest:
+        return `Your marathon session spanned ${this.data?.numMessages} messages.`
+      case UserEventName.FirstGPT4:
+        return "First leap into the future, get the most accurate answer."
+      case UserEventName.FirstVision:
+        return "Welcome to the era of multimodal AI."
+      case UserEventName.FirstImage:
+        return "Realize your dream of becoming an artist."
+    }
+  }
 }
 
 async function collectStatsAndUserEvents(
@@ -130,34 +175,34 @@ async function collectStatsAndUserEvents(
   }
 
   const userEvents: { [key in UserEventName]: UserEvent } = {
-    [UserEventName.First]: {
+    [UserEventName.First]: new UserEvent({
       name: UserEventName.First,
       date: conversations[0]?.create_time,
       conversationId: conversations[0]?.id
-    },
-    [UserEventName.Milestone100]: {
+    }),
+    [UserEventName.Milestone100]: new UserEvent({
       name: UserEventName.Milestone100,
       date: conversations[99]?.create_time,
       conversationId: conversations[99]?.id
-    },
-    [UserEventName.Milestone1000]: {
+    }),
+    [UserEventName.Milestone1000]: new UserEvent({
       name: UserEventName.Milestone1000,
       date: conversations[999]?.create_time,
       conversationId: conversations[999]?.id
-    },
-    [UserEventName.Longest]: {
+    }),
+    [UserEventName.Longest]: new UserEvent({
       name: UserEventName.Longest,
       data: { numMessages: 0 }
-    },
-    [UserEventName.FirstGPT4]: {
+    }),
+    [UserEventName.FirstGPT4]: new UserEvent({
       name: UserEventName.FirstGPT4
-    },
-    [UserEventName.FirstVision]: {
+    }),
+    [UserEventName.FirstVision]: new UserEvent({
       name: UserEventName.FirstVision
-    },
-    [UserEventName.FirstImage]: {
+    }),
+    [UserEventName.FirstImage]: new UserEvent({
       name: UserEventName.FirstImage
-    }
+    })
   }
 
   const dailyMessages: { [key: string]: number } = {}
@@ -245,18 +290,20 @@ async function collectStatsAndUserEvents(
   const events = userEventsToEvents(Object.values(userEvents))
 
   if (Object.keys(dailyMessages).length > 0) {
-    const maxActiveDate: Event = {
-      name: "Most Active Day",
-      date: new Date(),
-      data: { numMessages: 0 }
-    }
+    let maxMsgs = 0,
+      maxDate = undefined
     for (const d in dailyMessages) {
-      if (dailyMessages[d] > maxActiveDate.data?.numMessages!) {
-        maxActiveDate.data!.numMessages = dailyMessages[d]
-        maxActiveDate.date = new Date(d)
+      if (dailyMessages[d] > maxMsgs) {
+        maxMsgs = dailyMessages[d]
+        maxDate = new Date(d)
       }
     }
 
+    const maxActiveDate: Event = {
+      name: "Most Active Day",
+      date: maxDate!,
+      descriptoin: `On your busiest day, you exchanged a ${maxMsgs} messages with ChatGPT.`
+    }
     events.push(maxActiveDate)
   }
 
@@ -264,7 +311,9 @@ async function collectStatsAndUserEvents(
     events.push({
       name: "First Shared Conversation",
       date: shared.items[0].create_time,
-      link: `https://chat.openai.com/share/${shared.items[0].id}`
+      link: `https://chat.openai.com/share/${shared.items[0].id}`,
+      descriptoin:
+        "Thank you for spreading the word and inspiring others with your AI encounter."
     })
   }
 
@@ -282,7 +331,7 @@ function userEventsToEvents(userEvents: UserEvent[]): Event[] {
         date: u.date!,
         name: u.name,
         link: `https://chat.openai.com/c/${u.conversationId}`,
-        data: u.data
+        descriptoin: u.getDescription()
       }
     })
 }
