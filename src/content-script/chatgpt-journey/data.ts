@@ -338,7 +338,7 @@ function userEventsToEvents(userEvents: UserEvent[]): Event[] {
         date: u.date!,
         name: u.name,
         link: `https://chat.openai.com/c/${u.conversationId}`,
-        descriptoin: u.getDescription()
+        description: u.getDescription()
       }
     })
 }

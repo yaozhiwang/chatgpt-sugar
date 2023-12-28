@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Dialog } from "@/components/dialog"
 import { Share, Spinner } from "@/components/icons"
@@ -46,22 +46,24 @@ export default function Journey() {
   }, [])
 
   return (
-    <div className="text-token-text-primary absolute left-0 top-0 z-30 w-full bg-white dark:bg-gray-800">
+    <div className="text-token-text-primary absolute left-0 top-0 z-30 min-h-screen w-full bg-white dark:bg-gray-800">
       <div className="sticky top-0 z-10 mb-1.5 flex h-14 items-center justify-between bg-white p-2 font-semibold dark:bg-gray-800">
         <div className="px-3 py-2 text-lg font-medium">ChatGPT Journey</div>
-        <button
-          className="btn btn-neutral btn-small border-token-border-medium relative flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-lg border focus:ring-0"
-          onClick={() => {
-            setOpenDialog(true)
-            setImageError("")
-            setImageData("")
-            setShowFooter(true)
-            setTimeout(() => {
-              convertToPng()
-            })
-          }}>
-          <Share className="icon-md" />
-        </button>
+        {journeyData && (
+          <button
+            className="btn btn-neutral btn-small border-token-border-medium relative flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-lg border focus:ring-0"
+            onClick={() => {
+              setOpenDialog(true)
+              setImageError("")
+              setImageData("")
+              setShowFooter(true)
+              setTimeout(() => {
+                convertToPng()
+              })
+            }}>
+            <Share className="icon-md" />
+          </button>
+        )}
       </div>
       <div className="mx-auto justify-center px-4 py-2 text-base md:gap-6">
         <div className="mx-auto flex flex-1 gap-3 text-base md:max-w-3xl md:px-5 lg:max-w-[40rem] lg:px-1 xl:max-w-[48rem] xl:px-5">
