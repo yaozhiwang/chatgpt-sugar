@@ -111,6 +111,17 @@ function ShareDialog({
     a.remove()
   }
 
+  if (error) {
+    return (
+      <div className="flex min-w-80 flex-col items-center">
+        <div className="flex flex-col gap-2 text-red-500">
+          <p className="text-xl font-medium">Error generating image</p>
+          <p>{error}</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!imageData) {
     return (
       <div className="flex min-w-80 flex-col items-center justify-center">
@@ -122,16 +133,6 @@ function ShareDialog({
     )
   }
 
-  if (error) {
-    return (
-      <div className="flex min-w-80 flex-col items-center">
-        <div className="flex flex-col gap-2 text-red-500">
-          <p className="text-xl font-medium">Error generating image</p>
-          <p>{error}</p>
-        </div>
-      </div>
-    )
-  }
   return (
     <div className="flex flex-col gap-4">
       <img className="rounded-xl border" src={imageData} alt="timeline image" />
