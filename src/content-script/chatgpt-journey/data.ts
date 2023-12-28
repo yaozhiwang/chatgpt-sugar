@@ -9,7 +9,7 @@ import {
 export type Event = {
   date: Date
   name: string
-  descriptoin?: string
+  description?: string
   link?: string
 }
 
@@ -36,19 +36,19 @@ const ChatGPTEvents: Event[] = [
     date: new Date("2022-11-30"),
     name: "ChatGPT launch",
     link: "https://openai.com/blog/chatgpt",
-    descriptoin: "Cake day of ChatGPT"
+    description: "Cake day of ChatGPT"
   },
   {
     date: new Date("2023-02-01"),
     name: "ChatGPT Plus launch",
     link: "https://openai.com/blog/chatgpt-plus",
-    descriptoin: "Get get access to GPT-4, DALL-E 3 and GPTs"
+    description: "Get get access to GPT-4, DALL-E 3 and GPTs"
   },
   {
     date: new Date("2023-03-23"),
     name: "ChatGPT plugins launch",
     link: "https://openai.com/blog/chatgpt-plugins",
-    descriptoin: "The AppStore for ChatGPT"
+    description: "The AppStore for ChatGPT"
   },
   /*
   {
@@ -61,25 +61,25 @@ const ChatGPTEvents: Event[] = [
     date: new Date("2023-07-20"),
     name: "Introducing custom instructions",
     link: "https://openai.com/blog/custom-instructions-for-chatgpt",
-    descriptoin: "Set your preferences, and ChatGPT will keep them in mind."
+    description: "Set your preferences, and ChatGPT will keep them in mind."
   },
   {
     date: new Date("2023-09-25"),
     name: "GPT-4 Vision launch",
     link: "https://openai.com/blog/chatgpt-can-now-see-hear-and-speak",
-    descriptoin: "Chat about images"
+    description: "Chat about images"
   },
   {
     date: new Date("2023-10-09"),
     name: "DALL·E 3 launch",
     link: "https://openai.com/blog/dall-e-3-is-now-available-in-chatgpt-plus-and-enterprise",
-    descriptoin: "Create unique images from a simple conversation"
+    description: "Create unique images from a simple conversation"
   },
   {
     date: new Date("2023-11-06"),
     name: "GPTs launch",
     link: "https://openai.com/blog/introducing-gpts",
-    descriptoin: "Create your own versions of ChatGPT without coding"
+    description: "Create your own versions of ChatGPT without coding"
   }
 ]
 
@@ -302,7 +302,7 @@ async function collectStatsAndUserEvents(
     const maxActiveDate: Event = {
       name: "Most Active Day",
       date: maxDate!,
-      descriptoin: `On your busiest day, you exchanged a ${maxMsgs} messages with ChatGPT.`
+      description: `On your busiest day, you exchanged a ${maxMsgs} messages with ChatGPT.`
     }
     events.push(maxActiveDate)
   }
@@ -312,7 +312,7 @@ async function collectStatsAndUserEvents(
       name: "First Shared Conversation",
       date: shared.items[0].create_time,
       link: `https://chat.openai.com/share/${shared.items[0].id}`,
-      descriptoin:
+      description:
         "Thank you for spreading the word and inspiring others with your AI encounter."
     })
   }

@@ -4,7 +4,7 @@ import { classNames } from "@/lib/utils"
 
 import { Event, JourneyData, JourneyStats } from "../data"
 
-type DisplayEvent = Event & { left: boolean }
+type DisplayEvent = Omit<Event, "date"> & { date: Date | string; left: boolean }
 
 export default function Timeline({ data }: { data: JourneyData }) {
   const events = useMemo(() => {
@@ -36,6 +36,14 @@ export default function Timeline({ data }: { data: JourneyData }) {
       })
     }
 
+    events.push({
+      name: "",
+      date: "Today",
+      description:
+        "Your journey hasn't ended. Continue to discover and engage with ChatGPT’s evolving landscape.",
+      link: "https://chat.openai.com/",
+      left: false
+    })
     return events
   }, [data])
 
@@ -117,36 +125,32 @@ function Events({ events }: { events: DisplayEvent[] }) {
             event.left ? "flex-row-reverse" : "flex-row"
           )}>
           <div className="w-5/12"></div>
-          <div
+          <a
             className={classNames(
-              "w-5/12 px-1 py-4",
+              "w-5/12 rounded-xl px-8 py-4",
+              event.link ? "hover:bg-gray-50 dark:hover:bg-gray-700" : "",
               event.left ? "text-right" : "text-left"
-            )}>
+            )}
+            href={event.link}
+            target="_blank"
+            rel="noreferrer">
             <p className="mb-3 text-base text-yellow-300">
-              {event.date.toLocaleDateString("en-US", {
-                weekday: undefined,
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-              })}
+              {typeof event.date === "string"
+                ? event.date
+                : event.date.toLocaleDateString("en-US", {
+                    weekday: undefined,
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  })}
             </p>
             <h4 className="mb-3 text-lg font-bold md:text-2xl">{event.name}</h4>
             <p className="text-sm leading-snug md:text-base">
-              {event.descriptoin}
+              {event.description}
             </p>
-          </div>
+          </a>
         </div>
       ))}
-      <div className="mb-8 flex w-full items-center justify-between">
-        <div className="w-5/12"></div>
-        <div className="w-5/12 px-1 py-4 text-left">
-          <p className="mb-3 text-base text-yellow-300">Today</p>
-          <p className="text-sm leading-snug md:text-base">
-            Your journey hasn't ended. Continue to discover and engage with
-            ChatGPT’s evolving landscape.
-          </p>
-        </div>
-      </div>
     </div>
   )
 }
