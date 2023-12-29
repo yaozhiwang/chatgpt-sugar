@@ -4,7 +4,7 @@ import packageJson from "./package.json"
 
 const { version } = packageJson
 
-const name = "ChatGPT Sugar: Make Your ChatGPT A Little Sweeter"
+const name = "ChatGPT Sugar: Make Your ChatGPT Sweeter"
 const description =
   "A collection of subtle and delightful tools, seamlessly integrated into your ChatGPT experience."
 

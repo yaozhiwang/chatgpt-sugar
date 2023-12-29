@@ -2,7 +2,7 @@
 
 # ChatGPT Sugar
 
-Make Your ChatGPT A Little Sweeter
+Make Your ChatGPT Sweeter
 
 [![license][license-image]][license-url]
 [![release][release-image]][release-url]
