@@ -26,6 +26,13 @@ Note: ChatGPT Sugar is now under review of Chrome Web Store, please use
   https://img.shields.io/badge/-Manual-lightgrey?style=for-the-badge
 [manual-url]: #manual-installation
 
+### Screenshots
+
+[![promo][promo-image]][promo-url]
+
+[promo-image]: http://img.youtube.com/vi/ZUZkHaTC91U/0.jpg
+[promo-url]: https://www.youtube.com/watch?v=ZUZkHaTC91U
+
 </div>
 
 ChatGPT Sugar is a Chrome extension designed to enrich your daily interactions
