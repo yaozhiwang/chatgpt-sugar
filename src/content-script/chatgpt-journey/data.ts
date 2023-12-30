@@ -1,10 +1,10 @@
 import {
   Conversation,
   User,
-  getAllConversations,
-  getConversation,
+  getConversations,
   getSharedConversations,
-  getUser
+  getUser,
+  listAllConversations
 } from "@/lib/api"
 
 export type Event = {
@@ -87,12 +87,11 @@ const ChatGPTEvents: Event[] = [
 ]
 
 export async function collectJourneyData(): Promise<JourneyData> {
-  const conversationList = await getAllConversations()
+  const conversationList = await listAllConversations()
 
-  const conversations: Conversation[] = []
-  for (const conversation of conversationList) {
-    conversations.push(await getConversation(conversation.id))
-  }
+  const conversations = await getConversations(
+    conversationList.map((c) => c.id)
+  )
 
   const { user, stats, events } = await collectStatsAndUserEvents(conversations)
 

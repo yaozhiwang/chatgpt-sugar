@@ -72,21 +72,32 @@ const DateConverter = (d: string | number): Date => {
   throw new Error(`unknown format of date: ${d}`)
 }
 
-export async function getAllConversations(): Promise<Conversation[]> {
+const MAX_JOBS = 16
+export async function listAllConversations(): Promise<Conversation[]> {
   const conversations: Conversation[] = []
   const limit = 50
-  let total = 0
-  do {
+
+  const offset = 0
+  const data = await listConversations({ offset, limit })
+  conversations.push(...data.items)
+  const total = data.total
+
+  while (conversations.length < total) {
+    const remains = Math.ceil((total - conversations.length) / limit)
+    const jobs = Math.min(remains, MAX_JOBS)
     const offset = conversations.length
-    const data = await getConversations({ offset, limit })
-    conversations.push(...data.items)
-    total = data.total
-  } while (conversations.length < total)
+    const data = await Promise.all(
+      [...Array(jobs).keys()].map((n) =>
+        listConversations({ offset: offset + n * limit, limit })
+      )
+    )
+    data.forEach((d) => conversations.push(...d.items))
+  }
 
   return conversations.reverse()
 }
 
-export async function getConversations({
+export async function listConversations({
   offset,
   limit,
   order = "created"
@@ -119,6 +130,22 @@ export async function getUser(): Promise<User> {
 
   const data = await resp.json()
   return { ...data, created: DateConverter(data.created) }
+}
+
+export async function getConversations(ids: string[]): Promise<Conversation[]> {
+  const conversations: Conversation[] = []
+
+  while (conversations.length < ids.length) {
+    const remains = ids.length - conversations.length
+    const jobs = Math.min(remains, MAX_JOBS)
+    const offset = conversations.length
+    const data = await Promise.all(
+      [...Array(jobs).keys()].map((n) => getConversation(ids[offset + n]))
+    )
+    data.forEach((d) => conversations.push(d))
+  }
+
+  return conversations
 }
 
 export async function getConversation(id: string) {
