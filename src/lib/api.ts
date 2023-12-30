@@ -106,29 +106,26 @@ export async function listConversations({
   limit: number
   order?: string
 }) {
-  const resp = await requestBackendAPI(
+  const data = await requestBackendAPI(
     "GET",
     `/conversations?offset=${offset}&limit=${limit}&order=${order}`
   )
 
-  const data = await resp.json()
   return { ...data, items: data.items.map(ConversationConverter) }
 }
 
 export async function getSharedConversations({ limit }: { limit: number }) {
-  const resp = await requestBackendAPI(
+  const data = await requestBackendAPI(
     "GET",
     `/shared_conversations?offset=0&limit=${limit}&order=created`
   )
 
-  const data = await resp.json()
   return { ...data, items: data.items.map(ConversationConverter) }
 }
 
 export async function getUser(): Promise<User> {
-  const resp = await requestBackendAPI("GET", `/me`)
+  const data = await requestBackendAPI("GET", `/me`)
 
-  const data = await resp.json()
   return { ...data, created: DateConverter(data.created) }
 }
 
@@ -149,9 +146,8 @@ export async function getConversations(ids: string[]): Promise<Conversation[]> {
 }
 
 export async function getConversation(id: string) {
-  const resp = await requestBackendAPI("GET", `/conversation/${id}`)
+  const data = await requestBackendAPI("GET", `/conversation/${id}`)
 
-  const data = await resp.json()
   return { ...ConversationConverter({ ...data, id: data.conversation_id }) }
 }
 
@@ -165,7 +161,7 @@ async function requestBackendAPI(
     accessToken = await getAccessToken()
   }
 
-  return fetch(`https://chat.openai.com/backend-api${path}`, {
+  const resp = await fetch(`https://chat.openai.com/backend-api${path}`, {
     method,
     headers: {
       "Content-Type": "application/json",
@@ -173,6 +169,22 @@ async function requestBackendAPI(
     },
     body: data === undefined ? undefined : JSON.stringify(data)
   })
+  if (!resp.ok) {
+    let msg = ""
+    if (resp.headers.get("Content-Type") === "text/plain") {
+      msg = await resp.text()
+    } else if (resp.headers.get("Content-Type") === "application/json") {
+      msg = await resp.json().catch(() => ({}))
+    }
+    console.error(resp.status, resp.statusText, msg)
+    throw new Error(
+      `Backend API error: ${resp.status}:${resp.statusText}:${JSON.stringify({
+        msg
+      })}`
+    )
+  }
+
+  return await resp.json()
 }
 
 async function getAccessToken(): Promise<string> {
