@@ -14,7 +14,7 @@ export type Message = {
     text?: string
   }
   create_time: Date
-  metadata: { model_slug?: string }
+  metadata: { model_slug?: string; voice_mode_message?: boolean }
 }
 
 export type Conversation = {

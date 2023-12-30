@@ -134,7 +134,7 @@ function Stats({ stats }: { stats: JourneyStats }) {
             Total messages
           </p>
         </div>
-        <div className="grid w-full grid-cols-1 md:!grid-cols-3">
+        <div className="grid w-full grid-cols-1 gap-y-4 md:!grid-cols-3">
           <div className="flex w-full flex-col items-center">
             <p className="text-xl font-medium text-green-600">
               {stats.totalGPT4Messages}
@@ -157,6 +157,14 @@ function Stats({ stats }: { stats: JourneyStats }) {
             </p>
             <p className="w-full text-center text-sm font-normal">
               Images created
+            </p>
+          </div>
+          <div className="flex w-full flex-col items-center">
+            <p className="text-xl font-bold text-green-600">
+              {stats.totalVoiceMessages}
+            </p>
+            <p className="w-full text-center text-sm font-normal">
+              Voice Messages
             </p>
           </div>
         </div>

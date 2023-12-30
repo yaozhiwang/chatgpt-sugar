@@ -23,6 +23,7 @@ export type JourneyStats = {
   totalGPT4Messages: number
   totalVisionMessages: number
   totalImageMessages: number
+  totalVoiceMessages: number
 }
 
 export type JourneyData = {
@@ -68,9 +69,9 @@ const ChatGPTEvents: Event[] = [
   },
   {
     date: new Date("2023-09-25"),
-    name: "GPT-4 Vision launch",
+    name: "Roll Out Voice and Image Capabilities",
     link: "https://openai.com/blog/chatgpt-can-now-see-hear-and-speak",
-    description: "Chat about images"
+    description: "Have voice conversation, and chat about images"
   },
   {
     date: new Date("2023-10-09"),
@@ -112,7 +113,8 @@ enum UserEventName {
   Milestone1000 = "1000th Conversation",
   FirstGPT4 = "First GPT-4 Conversation",
   FirstVision = "First Conversation with Vision",
-  FirstImage = "Create First Image with DALLE"
+  FirstImage = "Create First Image with DALLE",
+  FirstVoice = "First Voice Conversation"
 }
 
 type UserEventDataType = { numMessages?: number }
@@ -155,6 +157,8 @@ class UserEvent {
         return "Welcome to the era of multimodal AI."
       case UserEventName.FirstImage:
         return "Realize your dream of becoming an artist."
+      case UserEventName.FirstVoice:
+        return "Speak to ChatGPT using your voice."
     }
   }
 }
@@ -175,7 +179,8 @@ async function collectStatsAndUserEvents(
     totalMessages: 0,
     totalGPT4Messages: 0,
     totalVisionMessages: 0,
-    totalImageMessages: 0
+    totalImageMessages: 0,
+    totalVoiceMessages: 0
   }
 
   const userEvents: { [key in UserEventName]: UserEvent } = {
@@ -206,6 +211,9 @@ async function collectStatsAndUserEvents(
     }),
     [UserEventName.FirstImage]: new UserEvent({
       name: UserEventName.FirstImage
+    }),
+    [UserEventName.FirstVoice]: new UserEvent({
+      name: UserEventName.FirstVoice
     })
   }
 
@@ -216,6 +224,7 @@ async function collectStatsAndUserEvents(
     let numGPT4Messages = 0
     let numVisionMessages = 0
     let numImageMessages = 0
+    let numVoiceMessages = 0
     for (const msgId in conversation.mapping) {
       const message = conversation.mapping[msgId].message
       if (!message || message.author?.role === "system") {
@@ -231,6 +240,14 @@ async function collectStatsAndUserEvents(
             if (!firstVision.conversationId) {
               firstVision.conversationId = conversation.id
               firstVision.date = conversation.create_time
+            }
+          }
+          if (message.metadata.voice_mode_message) {
+            numVoiceMessages += 1
+            const firstVoice = userEvents[UserEventName.FirstVoice]
+            if (!firstVoice.conversationId) {
+              firstVoice.conversationId = conversation.id
+              firstVoice.date = conversation.create_time
             }
           }
           numMessages += 1
@@ -289,6 +306,7 @@ async function collectStatsAndUserEvents(
     stats.totalGPT4Messages += numGPT4Messages
     stats.totalVisionMessages += numVisionMessages
     stats.totalImageMessages += numImageMessages
+    stats.totalVoiceMessages += numVoiceMessages
   }
 
   const events = userEventsToEvents(Object.values(userEvents))
