@@ -87,88 +87,74 @@ function Header({ user, stats }: { user: User; stats: JourneyStats }) {
 }
 
 function Stats({ stats }: { stats: JourneyStats }) {
+  const data = [
+    {
+      total: { value: stats.totalConversations, title: "Total Conversations" },
+      details: [
+        {
+          value: Math.round(stats.totalConversations / stats.activeDays),
+          title: "Conversations per day"
+        },
+        {
+          value: Math.round(stats.totalMessages / stats.totalConversations),
+          title: "Messages per conversation"
+        },
+        {
+          value: stats.totalShared,
+          title: "Shared conversations"
+        }
+      ]
+    },
+    {
+      total: { value: stats.totalMessages, title: "Total messages" },
+      details: [
+        {
+          value: stats.totalGPT4Messages,
+          title: "GPT4 messsages"
+        },
+        {
+          value: stats.totalVisionMessages,
+          title: "Messages with Vision"
+        },
+        {
+          value: stats.totalImageMessages,
+          title: "Images created"
+        },
+        {
+          value: stats.totalVoiceMessages,
+          title: "Voice messages"
+        }
+      ]
+    }
+  ]
+
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="border-token-border-medium flex w-full flex-col gap-4 rounded-lg border px-2 py-4">
-        <div className="flex w-full flex-col items-center gap-2">
-          <p className="text-3xl font-bold text-green-600">
-            {stats.totalConversations}
-          </p>
-          <p className="w-full text-center text-sm font-normal">
-            Total conversations
-          </p>
-        </div>
-        <div className="grid w-full grid-cols-1 md:!grid-cols-3">
-          <div className="flex flex-col items-center">
-            <p className="text-xl font-medium text-green-600">
-              {Math.round(stats.totalConversations / stats.activeDays)}
-            </p>
+      {data.map(({ total, details }, i) => (
+        <div
+          key={i}
+          className="border-token-border-medium flex w-full flex-col gap-4 rounded-lg border px-2 py-4">
+          <div className="flex w-full flex-col items-center gap-2">
+            <p className="text-3xl font-bold text-green-600">{total.value}</p>
             <p className="w-full text-center text-sm font-normal">
-              Conversations per day
+              {total.title}
             </p>
           </div>
-          <div className="flex flex-col items-center">
-            <p className="text-xl font-medium text-green-600">
-              {Math.round(stats.totalMessages / stats.totalConversations)}
-            </p>
-            <p className="w-full text-center text-sm font-normal">
-              Messages per conversation
-            </p>
-          </div>
-          <div className="flex flex-col items-center">
-            <p className="text-xl font-bold text-green-600">
-              {stats.totalShared}
-            </p>
-            <p className="w-full text-center text-sm font-normal">
-              Shared conversations
-            </p>
+
+          <div className="grid w-full grid-cols-1 !gap-y-4 md:!grid-cols-3">
+            {details.map((item, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <p className="text-xl font-medium text-green-600">
+                  {item.value}
+                </p>
+                <p className="w-full text-center text-sm font-normal">
+                  {item.title}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
-      <div className="border-token-border-medium flex w-full flex-col gap-4 rounded-lg border px-2 py-4">
-        <div className="flex w-full flex-col items-center gap-2">
-          <p className="text-3xl font-bold text-green-600">
-            {stats.totalMessages}
-          </p>
-          <p className="w-full text-center text-sm font-normal">
-            Total messages
-          </p>
-        </div>
-        <div className="grid w-full grid-cols-1 gap-y-4 md:!grid-cols-3">
-          <div className="flex w-full flex-col items-center">
-            <p className="text-xl font-medium text-green-600">
-              {stats.totalGPT4Messages}
-            </p>
-            <p className="w-full text-center text-sm font-normal">
-              GPT4 messsages
-            </p>
-          </div>
-          <div className="flex w-full flex-col items-center">
-            <p className="text-xl font-medium text-green-600">
-              {stats.totalVisionMessages}
-            </p>
-            <p className="w-full text-center text-sm font-normal">
-              Messages with Vision
-            </p>
-          </div>
-          <div className="flex w-full flex-col items-center">
-            <p className="text-xl font-bold text-green-600">
-              {stats.totalImageMessages}
-            </p>
-            <p className="w-full text-center text-sm font-normal">
-              Images created
-            </p>
-          </div>
-          <div className="flex w-full flex-col items-center">
-            <p className="text-xl font-bold text-green-600">
-              {stats.totalVoiceMessages}
-            </p>
-            <p className="w-full text-center text-sm font-normal">
-              Voice Messages
-            </p>
-          </div>
-        </div>
-      </div>
+      ))}
     </div>
   )
 }
