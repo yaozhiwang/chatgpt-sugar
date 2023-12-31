@@ -5,7 +5,6 @@ export type Message = {
   author: { role: "system" | "user" | "assistant" | "tool"; name?: string }
   content: {
     content_type: "text" | "code" | "multimodal_text"
-    recipient: string
     parts?: (
       | string
       | { content_type: "image_asset_pointer"; asset_pointer: string }
@@ -14,6 +13,7 @@ export type Message = {
     text?: string
   }
   create_time: Date
+  recipient: string
   metadata: { model_slug?: string; voice_mode_message?: boolean }
 }
 

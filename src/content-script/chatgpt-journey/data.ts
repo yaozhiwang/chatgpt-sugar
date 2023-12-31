@@ -24,6 +24,8 @@ export type JourneyStats = {
   totalVisionMessages: number
   totalImageMessages: number
   totalVoiceMessages: number
+  totalWebBrowserMessages: number
+  totalCodeInterpreterMessages: number
 }
 
 export type JourneyData = {
@@ -52,7 +54,7 @@ const ChatGPTEvents: Event[] = [
     date: new Date("2023-03-23"),
     name: "ChatGPT plugins launch",
     link: "https://openai.com/blog/chatgpt-plugins",
-    description: "The AppStore for ChatGPT"
+    description: "Web Browser, Code Interpreter and third-party services"
   },
   /*
   {
@@ -114,7 +116,9 @@ enum UserEventName {
   FirstGPT4 = "First GPT-4 Conversation",
   FirstVision = "First Conversation with Vision",
   FirstImage = "Create First Image with DALLE",
-  FirstVoice = "First Voice Conversation"
+  FirstVoice = "First Voice Conversation",
+  FirstWebBrowser = "First Web Browser Conversation",
+  FirstCodeInterpreter = "First Code Interpreter Conversation"
 }
 
 type UserEventDataType = { numMessages?: number }
@@ -159,6 +163,10 @@ class UserEvent {
         return "Realize your dream of becoming an artist."
       case UserEventName.FirstVoice:
         return "Speak to ChatGPT using your voice."
+      case UserEventName.FirstWebBrowser:
+        return "Get up-to-date information from Web with ChatGPT."
+      case UserEventName.FirstCodeInterpreter:
+        return "Unleash the power of Python in ChatGPT."
     }
   }
 }
@@ -180,7 +188,9 @@ async function collectStatsAndUserEvents(
     totalGPT4Messages: 0,
     totalVisionMessages: 0,
     totalImageMessages: 0,
-    totalVoiceMessages: 0
+    totalVoiceMessages: 0,
+    totalWebBrowserMessages: 0,
+    totalCodeInterpreterMessages: 0
   }
 
   const userEvents: { [key in UserEventName]: UserEvent } = {
@@ -214,6 +224,12 @@ async function collectStatsAndUserEvents(
     }),
     [UserEventName.FirstVoice]: new UserEvent({
       name: UserEventName.FirstVoice
+    }),
+    [UserEventName.FirstWebBrowser]: new UserEvent({
+      name: UserEventName.FirstWebBrowser
+    }),
+    [UserEventName.FirstCodeInterpreter]: new UserEvent({
+      name: UserEventName.FirstCodeInterpreter
     })
   }
 
@@ -225,6 +241,8 @@ async function collectStatsAndUserEvents(
     let numVisionMessages = 0
     let numImageMessages = 0
     let numVoiceMessages = 0
+    let numWebBrowserMessages = 0
+    let numCodeInterpreterMessages = 0
     for (const msgId in conversation.mapping) {
       const message = conversation.mapping[msgId].message
       if (!message || message.author?.role === "system") {
@@ -260,14 +278,23 @@ async function collectStatsAndUserEvents(
           }
           break
         case "assistant":
-          if (
-            message.content?.content_type === "code" &&
-            message.content?.recipient === "dalle.text2im"
-          ) {
-            // message that GPT-4 sends to DALLE
-            continue
-          }
-          if (message.metadata?.model_slug === "gpt-4") {
+          if (message.content?.content_type === "code") {
+            let first: UserEvent | null = null
+            if (message.recipient === "dalle.text2im") {
+              numImageMessages += 1
+              first = userEvents[UserEventName.FirstImage]
+            } else if (message.recipient === "browser") {
+              numWebBrowserMessages += 1
+              first = userEvents[UserEventName.FirstWebBrowser]
+            } else if (message.recipient === "python") {
+              numCodeInterpreterMessages += 1
+              first = userEvents[UserEventName.FirstCodeInterpreter]
+            }
+            if (first && !first.conversationId) {
+              first.conversationId = conversation.id
+              first.date = conversation.create_time
+            }
+          } else if (message.metadata?.model_slug === "gpt-4") {
             numGPT4Messages += 1
 
             const firstGPT4 = userEvents[UserEventName.FirstGPT4]
@@ -277,21 +304,6 @@ async function collectStatsAndUserEvents(
             }
           }
           break
-        case "tool":
-          if (
-            message.author?.name === "dalle.text2im" &&
-            // there is an extra message from DALLE to GPT-4 with content_type === "text",
-            // we exclude it
-            message.content?.content_type === "multimodal_text"
-          ) {
-            numImageMessages += 1
-
-            const firstImage = userEvents[UserEventName.FirstImage]
-            if (!firstImage.conversationId) {
-              firstImage.conversationId = conversation.id
-              firstImage.date = conversation.create_time
-            }
-          }
       }
     }
 
@@ -307,6 +319,8 @@ async function collectStatsAndUserEvents(
     stats.totalVisionMessages += numVisionMessages
     stats.totalImageMessages += numImageMessages
     stats.totalVoiceMessages += numVoiceMessages
+    stats.totalWebBrowserMessages += numWebBrowserMessages
+    stats.totalCodeInterpreterMessages += numCodeInterpreterMessages
   }
 
   const events = userEventsToEvents(Object.values(userEvents))

@@ -123,6 +123,14 @@ function Stats({ stats }: { stats: JourneyStats }) {
         {
           value: stats.totalVoiceMessages,
           title: "Voice messages"
+        },
+        {
+          value: stats.totalWebBrowserMessages,
+          title: "Messages browsing Web"
+        },
+        {
+          value: stats.totalCodeInterpreterMessages,
+          title: "Messages using Python"
         }
       ]
     }
