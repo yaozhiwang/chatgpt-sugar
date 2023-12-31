@@ -354,6 +354,24 @@ async function collectStatsAndUserEvents(
     })
   }
 
+  let years = 1
+  while (true) {
+    const d = new Date(user.created).setFullYear(
+      user.created.getFullYear() + years
+    )
+    if (d > Date.now()) {
+      break
+    }
+    events.push({
+      name: `${years}-Year Anniversary`,
+      date: new Date(d),
+      description: `Celebrating ${years} year${
+        years > 1 ? "s" : ""
+      } engaging with ChatGPT.`
+    })
+    years += 1
+  }
+
   return {
     user,
     stats,
