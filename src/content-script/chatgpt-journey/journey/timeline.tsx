@@ -136,21 +136,69 @@ function Stats({ stats }: { stats: JourneyStats }) {
     }
   ]
 
+  let plusMessages = 0
+  for (const [key, value] of Object.entries(stats.messages)) {
+    if (key === "total") {
+      continue
+    }
+
+    plusMessages += value
+  }
+
+  const totalGPTs =
+    stats.gpts.mine.public +
+    stats.gpts.mine.private +
+    stats.gpts.thirdParty.total
+
   return (
     <div className="flex w-full flex-col gap-4">
-      {data.map(({ total, details }, i) => (
-        <div
-          key={i}
-          className="border-token-border-medium flex w-full flex-col gap-4 rounded-lg border px-2 py-4">
-          <div className="flex w-full flex-col items-center gap-2">
-            <p className="text-3xl font-bold text-green-600">{total.value}</p>
-            <p className="w-full text-center text-sm font-normal">
-              {total.title}
-            </p>
+      {plusMessages > 0 ? (
+        <>
+          {data.map(({ total, details }, i) => (
+            <div
+              key={i}
+              className="border-token-border-medium flex w-full flex-col gap-8 rounded-lg border px-2 py-4">
+              <div className="flex w-full flex-col items-center gap-2">
+                <p className="text-3xl font-bold text-green-600">
+                  {total.value}
+                </p>
+                <p className="w-full text-center text-sm font-normal">
+                  {total.title}
+                </p>
+              </div>
+
+              <div className="grid w-full grid-cols-3 gap-y-4">
+                {details.map((item, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <p className="text-xl font-medium text-green-600">
+                      {item.value}
+                    </p>
+                    <p className="w-full text-center text-sm font-normal">
+                      {item.title}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      ) : (
+        <div className="border-token-border-medium flex w-full flex-col gap-8 rounded-lg border px-2 py-4">
+          <div className="grid w-full grid-cols-2">
+            {data.map(({ total }, i) => (
+              <div key={i} className="flex w-full flex-col items-center gap-2">
+                <p className="text-3xl font-bold text-green-600">
+                  {total.value}
+                </p>
+                <p className="w-full text-center text-sm font-normal">
+                  {total.title}
+                </p>
+              </div>
+            ))}
           </div>
 
           <div className="grid w-full grid-cols-3 gap-y-4">
-            {details.map((item, i) => (
+            {data[0].details.map((item, i) => (
               <div key={i} className="flex flex-col items-center">
                 <p className="text-xl font-medium text-green-600">
                   {item.value}
@@ -162,61 +210,59 @@ function Stats({ stats }: { stats: JourneyStats }) {
             ))}
           </div>
         </div>
-      ))}
-      <div className="border-token-border-medium flex w-full flex-col rounded-lg border px-2 py-4">
-        <div className="flex w-full flex-col items-center gap-2">
-          <p className="text-3xl font-bold text-green-600">
-            {stats.gpts.mine.public +
-              stats.gpts.mine.private +
-              stats.gpts.thirdParty.total}
-          </p>
-          <p className="w-full text-center text-sm font-normal">Total GPTs</p>
-        </div>
-        <div className="grid w-full grid-cols-3 gap-y-4 pt-4">
-          <div className="col-span-2">
-            <div className="flex w-full flex-col items-center gap-2">
-              <p className="text-2xl font-bold text-green-600">
-                {stats.gpts.mine.public + stats.gpts.mine.private}
-              </p>
-              <p className="w-full text-center text-sm font-normal">
-                GPTs created
-              </p>
+      )}
+      {totalGPTs > 0 && (
+        <div className="border-token-border-medium flex w-full flex-col rounded-lg border px-2 py-4">
+          <div className="flex w-full flex-col items-center gap-2">
+            <p className="text-3xl font-bold text-green-600">{totalGPTs}</p>
+            <p className="w-full text-center text-sm font-normal">Total GPTs</p>
+          </div>
+          <div className="grid w-full grid-cols-3 gap-y-4 pt-8">
+            <div className="col-span-2">
+              <div className="flex w-full flex-col items-center gap-2">
+                <p className="text-2xl font-bold text-green-600">
+                  {stats.gpts.mine.public + stats.gpts.mine.private}
+                </p>
+                <p className="w-full text-center text-sm font-normal">
+                  GPTs created
+                </p>
+              </div>
+            </div>
+            <div className="border-token-border-medium col-span-1 border-l">
+              <div className="flex w-full flex-col items-center gap-2">
+                <p className="text-2xl font-bold text-green-600">
+                  {stats.gpts.thirdParty.total}
+                </p>
+                <p className="w-full text-center text-sm font-normal">
+                  third-party GPTs
+                </p>
+              </div>
             </div>
           </div>
-          <div className="border-token-border-medium col-span-1 border-l">
-            <div className="flex w-full flex-col items-center gap-2">
-              <p className="text-2xl font-bold text-green-600">
-                {stats.gpts.thirdParty.total}
-              </p>
-              <p className="w-full text-center text-sm font-normal">
-                third-party GPTs
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <div className="grid w-full grid-cols-3 gap-y-4">
-          <div className="flex flex-col items-center pt-4">
-            <p className="text-xl font-medium text-green-600">{`${stats.gpts.mine.public}/${stats.gpts.mine.private}`}</p>
-            <p className="w-full text-center text-sm font-normal">
-              {"public/private"}
-            </p>
-          </div>
-          <div className="flex flex-col items-center pt-4">
-            <p className="text-xl font-medium text-green-600">{`${stats.gpts.mine.chats.public}/${stats.gpts.mine.chats.private}`}</p>
-            <div className="w-full text-center text-sm font-normal">
-              <p>chats</p>
-              <p>{"(public/private)"}</p>
+          <div className="grid w-full grid-cols-3 gap-y-4">
+            <div className="flex flex-col items-center pt-8">
+              <p className="text-xl font-medium text-green-600">{`${stats.gpts.mine.public}/${stats.gpts.mine.private}`}</p>
+              <p className="w-full text-center text-sm font-normal">
+                {"public/private"}
+              </p>
+            </div>
+            <div className="flex flex-col items-center pt-8">
+              <p className="text-xl font-medium text-green-600">{`${stats.gpts.mine.chats.public}/${stats.gpts.mine.chats.private}`}</p>
+              <div className="w-full text-center text-sm font-normal">
+                <p>chats</p>
+                <p>{"(public/private)"}</p>
+              </div>
+            </div>
+            <div className="border-token-border-medium flex flex-col items-center border-l pt-8">
+              <p className="text-xl font-medium text-green-600">
+                {stats.gpts.thirdParty.chats}
+              </p>
+              <p className="w-full text-center text-sm font-normal">chats</p>
             </div>
           </div>
-          <div className="border-token-border-medium flex flex-col items-center border-l pt-4">
-            <p className="text-xl font-medium text-green-600">
-              {stats.gpts.thirdParty.chats}
-            </p>
-            <p className="w-full text-center text-sm font-normal">chats</p>
-          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
