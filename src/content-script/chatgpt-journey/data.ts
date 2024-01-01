@@ -1,10 +1,12 @@
 import {
   Conversation,
+  GPTs,
   User,
   getConversations,
   getSharedConversations,
   getUser,
-  listAllConversations
+  listAllConversations,
+  listMyGPTs
 } from "@/lib/api"
 
 export type Event = {
@@ -17,15 +19,24 @@ export type Event = {
 export type JourneyStats = {
   age: number
   activeDays: number
-  totalConversations: number
-  totalShared: number
-  totalMessages: number
-  totalGPT4Messages: number
-  totalVisionMessages: number
-  totalImageMessages: number
-  totalVoiceMessages: number
-  totalWebBrowserMessages: number
-  totalCodeInterpreterMessages: number
+  conversations: { total: number; shared: number }
+  messages: {
+    total: number
+    gpt4: number
+    vision: number
+    image: number
+    voice: number
+    webBrowser: number
+    codeInterpreter: number
+  }
+  gpts: {
+    mine: {
+      public: number
+      private: number
+      chats: { public: number; private: number }
+    }
+    thirdParty: { total: number; chats: number }
+  }
 }
 
 export type JourneyData = {
@@ -96,7 +107,12 @@ export async function collectJourneyData(): Promise<JourneyData> {
     conversationList.map((c) => c.id)
   )
 
-  const { user, stats, events } = await collectStatsAndUserEvents(conversations)
+  const myGPTs = await listMyGPTs()
+
+  const { user, stats, events } = await collectStatsAndUserEvents(
+    conversations,
+    myGPTs
+  )
 
   return {
     user,
@@ -172,7 +188,8 @@ class UserEvent {
 }
 
 async function collectStatsAndUserEvents(
-  conversations: Conversation[]
+  conversations: Conversation[],
+  myGPTs: GPTs[]
 ): Promise<{ user: User; stats: JourneyStats; events: Event[] }> {
   const shared = await getSharedConversations({ limit: 1 })
   const user = await getUser()
@@ -182,15 +199,20 @@ async function collectStatsAndUserEvents(
       (Date.now() - user.created.getTime()) / (1000 * 60 * 60 * 24)
     ),
     activeDays: 0,
-    totalConversations: conversations.length,
-    totalShared: shared.total,
-    totalMessages: 0,
-    totalGPT4Messages: 0,
-    totalVisionMessages: 0,
-    totalImageMessages: 0,
-    totalVoiceMessages: 0,
-    totalWebBrowserMessages: 0,
-    totalCodeInterpreterMessages: 0
+    conversations: { total: conversations.length, shared: shared.total },
+    messages: {
+      total: 0,
+      gpt4: 0,
+      vision: 0,
+      image: 0,
+      voice: 0,
+      webBrowser: 0,
+      codeInterpreter: 0
+    },
+    gpts: {
+      mine: { public: 0, private: 0, chats: { public: 0, private: 0 } },
+      thirdParty: { total: 0, chats: 0 }
+    }
   }
 
   const userEvents: { [key in UserEventName]: UserEvent } = {
@@ -233,16 +255,24 @@ async function collectStatsAndUserEvents(
     })
   }
 
-  const dailyMessages: { [key: string]: number } = {}
+  const dailyMessages = new Map<string, number>()
+  const gptsConversations = new Map<string, number>()
 
   for (const conversation of conversations) {
-    let numMessages = 0
-    let numGPT4Messages = 0
-    let numVisionMessages = 0
-    let numImageMessages = 0
-    let numVoiceMessages = 0
-    let numWebBrowserMessages = 0
-    let numCodeInterpreterMessages = 0
+    const gptId = conversation.gizmo_id
+    if (gptId) {
+      gptsConversations.set(gptId, (gptsConversations.get(gptId) ?? 0) + 1)
+    }
+
+    let numMessages = {
+      total: 0,
+      gpt4: 0,
+      vision: 0,
+      image: 0,
+      voice: 0,
+      webBrowser: 0,
+      codeInterpreter: 0
+    }
     for (const msgId in conversation.mapping) {
       const message = conversation.mapping[msgId].message
       if (!message || message.author?.role === "system") {
@@ -252,7 +282,7 @@ async function collectStatsAndUserEvents(
       switch (message.author?.role) {
         case "user":
           if (message.content?.content_type === "multimodal_text") {
-            numVisionMessages += 1
+            numMessages.vision += 1
 
             const firstVision = userEvents[UserEventName.FirstVision]
             if (!firstVision.conversationId) {
@@ -261,33 +291,29 @@ async function collectStatsAndUserEvents(
             }
           }
           if (message.metadata.voice_mode_message) {
-            numVoiceMessages += 1
+            numMessages.voice += 1
             const firstVoice = userEvents[UserEventName.FirstVoice]
             if (!firstVoice.conversationId) {
               firstVoice.conversationId = conversation.id
               firstVoice.date = conversation.create_time
             }
           }
-          numMessages += 1
+          numMessages.total += 1
 
           const date = message.create_time.toDateString()
-          if (dailyMessages[date]) {
-            dailyMessages[date] += 1
-          } else {
-            dailyMessages[date] = 1
-          }
+          dailyMessages.set(date, (dailyMessages.get(date) ?? 0) + 1)
           break
         case "assistant":
           if (message.content?.content_type === "code") {
             let first: UserEvent | null = null
             if (message.recipient === "dalle.text2im") {
-              numImageMessages += 1
+              numMessages.image += 1
               first = userEvents[UserEventName.FirstImage]
             } else if (message.recipient === "browser") {
-              numWebBrowserMessages += 1
+              numMessages.webBrowser += 1
               first = userEvents[UserEventName.FirstWebBrowser]
             } else if (message.recipient === "python") {
-              numCodeInterpreterMessages += 1
+              numMessages.codeInterpreter += 1
               first = userEvents[UserEventName.FirstCodeInterpreter]
             }
             if (first && !first.conversationId) {
@@ -295,7 +321,7 @@ async function collectStatsAndUserEvents(
               first.date = conversation.create_time
             }
           } else if (message.metadata?.model_slug === "gpt-4") {
-            numGPT4Messages += 1
+            numMessages.gpt4 += 1
 
             const firstGPT4 = userEvents[UserEventName.FirstGPT4]
             if (!firstGPT4.conversationId) {
@@ -308,30 +334,53 @@ async function collectStatsAndUserEvents(
     }
 
     const longest = userEvents[UserEventName.Longest]
-    if (numMessages > longest.data!.numMessages!) {
-      longest.data!.numMessages = numMessages
+    if (numMessages.total > longest.data!.numMessages!) {
+      longest.data!.numMessages = numMessages.total
       longest.conversationId = conversation.id
       longest.date = conversation.create_time
     }
 
-    stats.totalMessages += numMessages
-    stats.totalGPT4Messages += numGPT4Messages
-    stats.totalVisionMessages += numVisionMessages
-    stats.totalImageMessages += numImageMessages
-    stats.totalVoiceMessages += numVoiceMessages
-    stats.totalWebBrowserMessages += numWebBrowserMessages
-    stats.totalCodeInterpreterMessages += numCodeInterpreterMessages
+    stats.messages.total += numMessages.total
+    stats.messages.gpt4 += numMessages.gpt4
+    stats.messages.vision += numMessages.vision
+    stats.messages.image += numMessages.image
+    stats.messages.voice += numMessages.voice
+    stats.messages.webBrowser += numMessages.webBrowser
+    stats.messages.codeInterpreter += numMessages.codeInterpreter
+  }
+
+  const gpts = new Map<string, GPTs>()
+  for (const gpt of myGPTs) {
+    gpts.set(gpt.id, gpt)
+    if (gpt.share_recipient !== "private") {
+      stats.gpts.mine.chats.public += parseInt(
+        gpt.vanity_metrics.num_conversations_str
+      )
+      stats.gpts.mine.public += 1
+    } else {
+      stats.gpts.mine.private += 1
+    }
+  }
+  for (const [id, count] of gptsConversations) {
+    if (gpts.has(id)) {
+      if (gpts.get(id)!.share_recipient === "private") {
+        stats.gpts.mine.chats.private += count
+      }
+    } else {
+      stats.gpts.thirdParty.total += 1
+      stats.gpts.thirdParty.chats += count
+    }
   }
 
   const events = userEventsToEvents(Object.values(userEvents))
 
-  stats.activeDays = Object.keys(dailyMessages).length
-  if (Object.keys(dailyMessages).length > 0) {
+  stats.activeDays = dailyMessages.size
+  if (dailyMessages.size > 0) {
     let maxMsgs = 0,
       maxDate = undefined
-    for (const d in dailyMessages) {
-      if (dailyMessages[d] > maxMsgs) {
-        maxMsgs = dailyMessages[d]
+    for (const [d, count] of dailyMessages) {
+      if (count > maxMsgs) {
+        maxMsgs = count
         maxDate = new Date(d)
       }
     }

@@ -22,6 +22,7 @@ export type Conversation = {
   create_time: Date
   update_time: Date
   title: string
+  gizmo_id: string
   is_archive: boolean
   mapping: {
     [key: string]: {
@@ -37,6 +38,15 @@ export type User = {
   created: Date
   name: string
   picture: string
+}
+
+export type GPTs = {
+  id: string
+  version: number
+  updated_at: Date
+  share_recipient: "private" | "link" | "marketplace"
+  short_url: string
+  vanity_metrics: { num_conversations_str: string }
 }
 
 const ConversationConverter = (item: any): Conversation => {
@@ -151,17 +161,54 @@ export async function getConversation(id: string) {
   return { ...ConversationConverter({ ...data, id: data.conversation_id }) }
 }
 
+export async function listMyGPTs() {
+  const data = await requestBackendAPI("GET", "/gizmos/discovery")
+
+  let cursor: string | null = null
+  const gpts: GPTs[] = []
+  for (const cut of data.cuts) {
+    if (cut.info?.id === "mine") {
+      gpts.push(
+        ...cut.list?.items.map((item: any) => {
+          const gpt = item.resource.gizmo
+          return { ...gpt, updated_at: DateConverter(gpt.updated_at) }
+        })
+      )
+      cursor = cut.list?.cursor
+    }
+  }
+
+  while (cursor) {
+    const data = await requestBackendAPI(
+      "GET",
+      `/gizmos/discovery/mine?cursor=${encodeURIComponent(cursor)}&limit=8`,
+      "public-api"
+    )
+
+    gpts.push(
+      ...data.list?.items?.map((item: any) => {
+        const gpt = item.resource.gizmo
+        return { ...gpt, updated_at: DateConverter(gpt.updated_at) }
+      })
+    )
+    cursor = data.list?.cursor
+  }
+
+  return gpts
+}
+
 let accessToken = ""
 async function requestBackendAPI(
   method: "GET" | "POST",
   path: string,
+  endpoint: string = "backend-api",
   data?: unknown
 ) {
   if (!accessToken) {
     accessToken = await getAccessToken()
   }
 
-  const resp = await fetch(`https://chat.openai.com/backend-api${path}`, {
+  const resp = await fetch(`https://chat.openai.com/${endpoint}/${path}`, {
     method,
     headers: {
       "Content-Type": "application/json",

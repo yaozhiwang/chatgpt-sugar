@@ -89,47 +89,47 @@ function Header({ user, stats }: { user: User; stats: JourneyStats }) {
 function Stats({ stats }: { stats: JourneyStats }) {
   const data = [
     {
-      total: { value: stats.totalConversations, title: "Total Conversations" },
+      total: { value: stats.conversations.total, title: "Total Conversations" },
       details: [
         {
-          value: Math.round(stats.totalConversations / stats.activeDays),
+          value: Math.round(stats.conversations.total / stats.activeDays),
           title: "Conversations per day"
         },
         {
-          value: Math.round(stats.totalMessages / stats.totalConversations),
+          value: Math.round(stats.messages.total / stats.conversations.total),
           title: "Messages per conversation"
         },
         {
-          value: stats.totalShared,
+          value: stats.conversations.shared,
           title: "Shared conversations"
         }
       ]
     },
     {
-      total: { value: stats.totalMessages, title: "Total messages" },
+      total: { value: stats.messages.total, title: "Total messages" },
       details: [
         {
-          value: stats.totalGPT4Messages,
+          value: stats.messages.gpt4,
           title: "GPT4 messsages"
         },
         {
-          value: stats.totalVisionMessages,
+          value: stats.messages.vision,
           title: "Messages with Vision"
         },
         {
-          value: stats.totalImageMessages,
+          value: stats.messages.image,
           title: "Images created"
         },
         {
-          value: stats.totalVoiceMessages,
+          value: stats.messages.voice,
           title: "Voice messages"
         },
         {
-          value: stats.totalWebBrowserMessages,
+          value: stats.messages.webBrowser,
           title: "Messages browsing Web"
         },
         {
-          value: stats.totalCodeInterpreterMessages,
+          value: stats.messages.codeInterpreter,
           title: "Messages using Python"
         }
       ]
@@ -149,7 +149,7 @@ function Stats({ stats }: { stats: JourneyStats }) {
             </p>
           </div>
 
-          <div className="grid w-full grid-cols-1 !gap-y-4 md:!grid-cols-3">
+          <div className="grid w-full grid-cols-3 gap-y-4">
             {details.map((item, i) => (
               <div key={i} className="flex flex-col items-center">
                 <p className="text-xl font-medium text-green-600">
@@ -163,6 +163,60 @@ function Stats({ stats }: { stats: JourneyStats }) {
           </div>
         </div>
       ))}
+      <div className="border-token-border-medium flex w-full flex-col rounded-lg border px-2 py-4">
+        <div className="flex w-full flex-col items-center gap-2">
+          <p className="text-3xl font-bold text-green-600">
+            {stats.gpts.mine.public +
+              stats.gpts.mine.private +
+              stats.gpts.thirdParty.total}
+          </p>
+          <p className="w-full text-center text-sm font-normal">Total GPTs</p>
+        </div>
+        <div className="grid w-full grid-cols-3 gap-y-4 pt-4">
+          <div className="col-span-2">
+            <div className="flex w-full flex-col items-center gap-2">
+              <p className="text-2xl font-bold text-green-600">
+                {stats.gpts.mine.public + stats.gpts.mine.private}
+              </p>
+              <p className="w-full text-center text-sm font-normal">
+                GPTs created
+              </p>
+            </div>
+          </div>
+          <div className="border-token-border-medium col-span-1 border-l">
+            <div className="flex w-full flex-col items-center gap-2">
+              <p className="text-2xl font-bold text-green-600">
+                {stats.gpts.thirdParty.total}
+              </p>
+              <p className="w-full text-center text-sm font-normal">
+                third-party GPTs
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid w-full grid-cols-3 gap-y-4">
+          <div className="flex flex-col items-center pt-4">
+            <p className="text-xl font-medium text-green-600">{`${stats.gpts.mine.public}/${stats.gpts.mine.private}`}</p>
+            <p className="w-full text-center text-sm font-normal">
+              {"public/private"}
+            </p>
+          </div>
+          <div className="flex flex-col items-center pt-4">
+            <p className="text-xl font-medium text-green-600">{`${stats.gpts.mine.chats.public}/${stats.gpts.mine.chats.private}`}</p>
+            <div className="w-full text-center text-sm font-normal">
+              <p>chats</p>
+              <p>{"(public/private)"}</p>
+            </div>
+          </div>
+          <div className="border-token-border-medium flex flex-col items-center border-l pt-4">
+            <p className="text-xl font-medium text-green-600">
+              {stats.gpts.thirdParty.chats}
+            </p>
+            <p className="w-full text-center text-sm font-normal">chats</p>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
