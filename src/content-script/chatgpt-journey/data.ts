@@ -3,6 +3,7 @@ import {
   GPTs,
   User,
   getConversations,
+  getGPTs,
   getSharedConversations,
   getUser,
   listAllConversations,
@@ -134,7 +135,9 @@ enum UserEventName {
   FirstImage = "Create First Image with DALLE",
   FirstVoice = "First Voice Conversation",
   FirstWebBrowser = "First Web Browser Conversation",
-  FirstCodeInterpreter = "First Code Interpreter Conversation"
+  FirstCodeInterpreter = "First Code Interpreter Conversation",
+  FirstGPTs = "First GPTs Conversation",
+  FirstCreateGPTs = "Create First GPTs"
 }
 
 type UserEventDataType = { numMessages?: number }
@@ -142,23 +145,36 @@ class UserEvent {
   name: UserEventName
   date?: Date
   conversationId?: string
+  gptsUrl?: string
   data?: UserEventDataType
 
   constructor({
     name,
     date,
     conversationId,
+    gptsUrl,
     data
   }: {
     name: UserEventName
     date?: Date
     conversationId?: string
+    gptsUrl?: string
     data?: UserEventDataType
   }) {
     this.name = name
     this.date = date
     this.conversationId = conversationId
+    this.gptsUrl = gptsUrl
     this.data = data
+  }
+
+  getLink(): string {
+    if (this.name === UserEventName.FirstGPTs) {
+      return `https://chat.openai.com/g/${this.gptsUrl}/c/${this.conversationId}`
+    } else if (this.name === UserEventName.FirstCreateGPTs) {
+      return `https://chat.openai.com/g/${this.gptsUrl}`
+    }
+    return `https://chat.openai.com/c/${this.conversationId}`
   }
 
   getDescription(): string {
@@ -183,6 +199,10 @@ class UserEvent {
         return "Get up-to-date information from Web with ChatGPT."
       case UserEventName.FirstCodeInterpreter:
         return "Unleash the power of Python in ChatGPT."
+      case UserEventName.FirstGPTs:
+        return "Exploring new dimensions with diverse capabilities."
+      case UserEventName.FirstCreateGPTs:
+        return "Make your own version of ChatGPT."
     }
   }
 }
@@ -252,9 +272,27 @@ async function collectStatsAndUserEvents(
     }),
     [UserEventName.FirstCodeInterpreter]: new UserEvent({
       name: UserEventName.FirstCodeInterpreter
+    }),
+    [UserEventName.FirstGPTs]: new UserEvent({
+      name: UserEventName.FirstGPTs
+    }),
+    [UserEventName.FirstCreateGPTs]: new UserEvent({
+      name: UserEventName.FirstCreateGPTs
     })
   }
 
+  const gpts = new Map<string, GPTs>()
+  for (const gpt of myGPTs) {
+    gpts.set(gpt.id, gpt)
+    if (gpt.share_recipient !== "private") {
+      stats.gpts.mine.chats.public += parseInt(
+        gpt.vanity_metrics.num_conversations_str
+      )
+      stats.gpts.mine.public += 1
+    } else {
+      stats.gpts.mine.private += 1
+    }
+  }
   const dailyMessages = new Map<string, number>()
   const gptsConversations = new Map<string, number>()
 
@@ -262,6 +300,28 @@ async function collectStatsAndUserEvents(
     const gptId = conversation.gizmo_id
     if (gptId) {
       gptsConversations.set(gptId, (gptsConversations.get(gptId) ?? 0) + 1)
+
+      const firstGPTs = userEvents[UserEventName.FirstGPTs]
+      if (!firstGPTs.conversationId) {
+        firstGPTs.conversationId = conversation.id
+        firstGPTs.date = conversation.create_time
+
+        if (gpts.has(gptId)) {
+          firstGPTs.gptsUrl = gpts.get(gptId)!.short_url
+        } else {
+          const gpt = await getGPTs(gptId)
+          firstGPTs.gptsUrl = gpt.short_url
+        }
+      }
+
+      if (gpts.has(gptId)) {
+        const firstCreateGPTs = userEvents[UserEventName.FirstCreateGPTs]
+        if (!firstCreateGPTs.conversationId) {
+          firstCreateGPTs.conversationId = conversation.id
+          firstCreateGPTs.date = conversation.create_time
+          firstCreateGPTs.gptsUrl = gpts.get(gptId)!.short_url
+        }
+      }
     }
 
     let numMessages = {
@@ -349,18 +409,6 @@ async function collectStatsAndUserEvents(
     stats.messages.codeInterpreter += numMessages.codeInterpreter
   }
 
-  const gpts = new Map<string, GPTs>()
-  for (const gpt of myGPTs) {
-    gpts.set(gpt.id, gpt)
-    if (gpt.share_recipient !== "private") {
-      stats.gpts.mine.chats.public += parseInt(
-        gpt.vanity_metrics.num_conversations_str
-      )
-      stats.gpts.mine.public += 1
-    } else {
-      stats.gpts.mine.private += 1
-    }
-  }
   for (const [id, count] of gptsConversations) {
     if (gpts.has(id)) {
       if (gpts.get(id)!.share_recipient === "private") {
@@ -435,7 +483,7 @@ function userEventsToEvents(userEvents: UserEvent[]): Event[] {
       return {
         date: u.date!,
         name: u.name,
-        link: `https://chat.openai.com/c/${u.conversationId}`,
+        link: u.getLink(),
         description: u.getDescription()
       }
     })

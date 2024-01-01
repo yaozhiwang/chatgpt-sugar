@@ -197,6 +197,13 @@ export async function listMyGPTs() {
   return gpts
 }
 
+export async function getGPTs(gptId: string) {
+  const data = await requestBackendAPI("GET", `/gizmos/${gptId}`)
+
+  const gpt = data.gizmo
+  return { ...gpt, updated_at: DateConverter(gpt.updated_at) }
+}
+
 let accessToken = ""
 async function requestBackendAPI(
   method: "GET" | "POST",
