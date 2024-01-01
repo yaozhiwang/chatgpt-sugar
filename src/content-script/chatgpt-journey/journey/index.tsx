@@ -76,7 +76,7 @@ export default function Journey() {
               )}
               <Timeline data={journeyData} />
               {showImage && (
-                <p className="px-3 pb-4 pt-2 text-right text-sm">
+                <p className="text-token-text-tertiary px-3 pb-4 pt-2 text-right text-sm">
                   Create your ChatGPT journey at https://chatgptsugar.xyz
                 </p>
               )}
