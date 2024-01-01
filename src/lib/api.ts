@@ -46,7 +46,7 @@ export type GPTs = {
   updated_at: Date
   share_recipient: "private" | "link" | "marketplace"
   short_url: string
-  vanity_metrics: { num_conversations_str: string }
+  vanity_metrics: { num_conversations: number }
 }
 
 const ConversationConverter = (item: any): Conversation => {
@@ -66,6 +66,18 @@ const ConversationConverter = (item: any): Conversation => {
   }
 }
 
+const GPTsConverter = (item: any): GPTs => {
+  return {
+    ...item,
+    updated_at: DateConverter(item.updated_at),
+    vanity_metrics: {
+      num_conversations: NumberConverter(
+        item.vanity_metrics.num_conversations_str
+      )
+    }
+  }
+}
+
 const DateConverter = (d: string | number): Date => {
   if (typeof d === "string") {
     return new Date(d)
@@ -80,6 +92,20 @@ const DateConverter = (d: string | number): Date => {
     }
   }
   throw new Error(`unknown format of date: ${d}`)
+}
+
+const NumberConverter = (str?: string | null): number => {
+  if (!str) {
+    return 0
+  }
+
+  if (str.endsWith("K") || str.endsWith("k")) {
+    return Math.round(parseFloat(str) * 1000)
+  } else if (str.endsWith("M") || str.endsWith("m")) {
+    return Math.round(parseFloat(str) * 1000 * 1000)
+  } else {
+    return parseInt(str)
+  }
 }
 
 const MAX_JOBS = 16
@@ -169,10 +195,9 @@ export async function listMyGPTs() {
   for (const cut of data.cuts) {
     if (cut.info?.id === "mine") {
       gpts.push(
-        ...cut.list?.items.map((item: any) => {
-          const gpt = item.resource.gizmo
-          return { ...gpt, updated_at: DateConverter(gpt.updated_at) }
-        })
+        ...cut.list?.items.map((item: any) =>
+          GPTsConverter(item.resource.gizmo)
+        )
       )
       cursor = cut.list?.cursor
     }
@@ -186,10 +211,9 @@ export async function listMyGPTs() {
     )
 
     gpts.push(
-      ...data.list?.items?.map((item: any) => {
-        const gpt = item.resource.gizmo
-        return { ...gpt, updated_at: DateConverter(gpt.updated_at) }
-      })
+      ...data.list?.items?.map((item: any) =>
+        GPTsConverter(item.resource.gizmo)
+      )
     )
     cursor = data.list?.cursor
   }
@@ -200,8 +224,7 @@ export async function listMyGPTs() {
 export async function getGPTs(gptId: string) {
   const data = await requestBackendAPI("GET", `/gizmos/${gptId}`)
 
-  const gpt = data.gizmo
-  return { ...gpt, updated_at: DateConverter(gpt.updated_at) }
+  return GPTsConverter(data.gizmo)
 }
 
 let accessToken = ""

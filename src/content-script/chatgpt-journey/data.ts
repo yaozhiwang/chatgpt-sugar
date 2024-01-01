@@ -285,9 +285,7 @@ async function collectStatsAndUserEvents(
   for (const gpt of myGPTs) {
     gpts.set(gpt.id, gpt)
     if (gpt.share_recipient !== "private") {
-      stats.gpts.mine.chats.public += parseInt(
-        gpt.vanity_metrics.num_conversations_str
-      )
+      stats.gpts.mine.chats.public += gpt.vanity_metrics.num_conversations
       stats.gpts.mine.public += 1
     } else {
       stats.gpts.mine.private += 1
