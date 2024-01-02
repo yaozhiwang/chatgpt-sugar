@@ -11,9 +11,6 @@ Make Your ChatGPT Sweeter
 
 [![chrome][chrome-image]][chrome-url] [![manual][manual-image]][manual-url]
 
-Note: ChatGPT Sugar is now under review of Chrome Web Store, please use
-[manual installation](#manual-installation) to give it a try.
-
 [license-image]: https://img.shields.io/badge/license-GPLv3.0-blue.svg
 [license-url]: https://github.com/yaozhiwang/chatgpt-sugar/blob/master/LICENSE
 [release-image]:
