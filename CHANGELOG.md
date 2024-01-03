@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.0.3] - 2024-01-03
+
+### Fixed
+
+- ChatGPT Journey
+  - Add retry for concurrent requests
+
 ## [v0.0.2] - 2024-01-01
 
 ### Added
