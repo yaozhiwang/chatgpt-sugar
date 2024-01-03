@@ -1,4 +1,5 @@
 import { AppError, ErrorCode } from "./error"
+import { runBatch } from "./utils"
 
 export type Message = {
   id: string
@@ -108,27 +109,25 @@ const NumberConverter = (str?: string | null): number => {
   }
 }
 
-const MAX_JOBS = 16
 export async function listAllConversations(): Promise<Conversation[]> {
   const conversations: Conversation[] = []
   const limit = 50
 
-  const offset = 0
-  const data = await listConversations({ offset, limit })
+  const data = await listConversations({ offset: 0, limit })
   conversations.push(...data.items)
   const total = data.total
 
-  while (conversations.length < total) {
-    const remains = Math.ceil((total - conversations.length) / limit)
-    const jobs = Math.min(remains, MAX_JOBS)
-    const offset = conversations.length
-    const data = await Promise.all(
-      [...Array(jobs).keys()].map((n) =>
-        listConversations({ offset: offset + n * limit, limit })
-      )
-    )
-    data.forEach((d) => conversations.push(...d.items))
-  }
+  const res = await runBatch(
+    (i) => listConversations({ offset: limit + i * limit, limit }),
+    Math.ceil((total - limit) / limit)
+  )
+  res.forEach((ret) => {
+    if (ret.status === "fulfilled") {
+      conversations.push(...ret.value.items)
+    } else {
+      throw new Error("Failed to list all conversations. Please retry.")
+    }
+  })
 
   return conversations.reverse()
 }
@@ -166,17 +165,15 @@ export async function getUser(): Promise<User> {
 }
 
 export async function getConversations(ids: string[]): Promise<Conversation[]> {
+  const res = await runBatch((i) => getConversation(ids[i]), ids.length)
   const conversations: Conversation[] = []
-
-  while (conversations.length < ids.length) {
-    const remains = ids.length - conversations.length
-    const jobs = Math.min(remains, MAX_JOBS)
-    const offset = conversations.length
-    const data = await Promise.all(
-      [...Array(jobs).keys()].map((n) => getConversation(ids[offset + n]))
-    )
-    data.forEach((d) => conversations.push(d))
-  }
+  res.forEach((ret) => {
+    if (ret.status === "fulfilled") {
+      conversations.push(ret.value!)
+    } else {
+      throw new Error("Failed to get all conversations. Please retry.")
+    }
+  })
 
   return conversations
 }

@@ -54,7 +54,7 @@ export default function Waiting({
         <div className="not-prose flex flex-col items-center gap-2">
           <Spinner className="h-8 w-8" />
           <p className="text-token-text-tertiary text-sm">
-            It may take some time to collect the data if you had lots of
+            It may take some time to collect the data if you have lots of
             conversations...
           </p>
         </div>
