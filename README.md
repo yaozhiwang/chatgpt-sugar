@@ -36,7 +36,7 @@ Make Your ChatGPT Sweeter
 
 </div>
 
-ChatGPT Sugar is a Chrome extension designed to enrich your daily interactions
+ChatGPT Sugar is a browser extension designed to enrich your daily interactions
 with ChatGPT. It's a collection of subtle and delightful tools, seamlessly
 integrated into your ChatGPT experience.
 

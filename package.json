@@ -8,7 +8,7 @@
     "build": "tsc && vite build --outDir dist/chrome",
     "build-firefox": "export BROWSER=firefox && tsc && vite build --outDir dist/firefox",
     "package": "rm -f chatgpt-sugar-chrome.zip && cd dist/chrome && zip -r ../chatgpt-sugar-chrome.zip . && cd -",
-    "package-firefox": "rm -f chatgpt-sugar-chrome.zip && cd dist/firefox && zip -r ../chatgpt-sugar-firefox.zip . && cd -",
+    "package-firefox": "rm -f chatgpt-sugar-firefox.zip && cd dist/firefox && zip -r ../chatgpt-sugar-firefox.zip . && cd -",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
