@@ -4,8 +4,9 @@
   "version": "0.0.3",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "vite dev",
+    "build": "tsc && vite build --outDir dist/chrome",
+    "build-firefox": "export BROWSER=firefox && tsc && vite build --outDir dist/firefox",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
