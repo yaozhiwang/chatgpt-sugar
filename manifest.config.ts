@@ -20,10 +20,6 @@ export default defineManifest(async (env) => {
       "48": "src/assets/logo.png",
       "128": "src/assets/logo.png"
     },
-    background: {
-      service_worker: "src/background/index.ts",
-      type: "module"
-    },
     action: {},
     host_permissions: ["https://*.openai.com/"],
     permissions: [],

@@ -18,6 +18,13 @@ export type Message = {
   metadata: { model_slug?: string; voice_mode_message?: boolean }
 }
 
+export type MessageNode = {
+  id: string
+  children: string[]
+  parent: string
+  message: Message
+}
+
 export type Conversation = {
   id: string
   create_time: Date
@@ -26,12 +33,7 @@ export type Conversation = {
   gizmo_id: string
   is_archive: boolean
   mapping: {
-    [key: string]: {
-      id: string
-      children: string[]
-      parent: string
-      message: Message
-    }
+    [key: string]: MessageNode
   }
 }
 
@@ -51,17 +53,28 @@ export type GPTs = {
 }
 
 const ConversationConverter = (item: any): Conversation => {
+  // using this new variable to avoid firefox error disallow to change variable from cross-origin
+  // Error: Not allowed to define cross-origin object as property on [Object] or [Array] XrayWrapper
+  let mapping: { [key: string]: MessageNode } | null = null
   if (item.mapping) {
+    mapping = {}
     for (const id in item.mapping) {
       const message = item.mapping[id].message
       if (!message || !message.create_time) {
         continue
       }
-      message.create_time = DateConverter(message.create_time)
+      mapping[id] = {
+        id,
+        children: item.mapping[id].children,
+        parent: item.mapping[id].parent,
+        message: { ...message }
+      }
+      mapping[id].message.create_time = DateConverter(message.create_time)
     }
   }
   return {
     ...item,
+    mapping,
     create_time: DateConverter(item.create_time),
     update_time: DateConverter(item.update_time)
   }
