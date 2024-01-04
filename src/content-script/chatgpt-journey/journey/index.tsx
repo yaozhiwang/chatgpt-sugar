@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 
 import { Dialog } from "@/components/dialog"
-import { Share, Spinner } from "@/components/icons"
+import { Share } from "@/components/icons"
 import { detectTheme } from "@/lib/utils"
 import { useToPng } from "@hugocxl/react-to-image"
 
 import { JourneyData } from "../data"
+import ShareDialog, { ShareOptions } from "./share"
 import Timeline from "./timeline"
 import Waiting from "./waiting"
 
@@ -14,8 +15,15 @@ export default function Journey() {
 
   const [openDialog, setOpenDialog] = useState(false)
 
+  const [date] = useState(new Date())
+  const [shareOptions, setShareOptions] = useState<ShareOptions>({
+    title: "My ChatGPT Journey",
+    shareName: false,
+    shareTimeline: false
+  })
   const [imageData, setImageData] = useState<string>()
   const [imageError, setImageError] = useState<string>()
+
   const [showImage, setShowImage] = useState(false)
   const [_, convertToPng, timelineRef] = useToPng<HTMLDivElement>({
     backgroundColor: detectTheme() === "dark" ? "#000000" : "#FFFFFF",
@@ -28,6 +36,15 @@ export default function Journey() {
       setShowImage(false)
     }
   })
+
+  const startConvertImage = () => {
+    setImageError("")
+    setImageData("")
+    setShowImage(true)
+    setTimeout(() => {
+      convertToPng()
+    })
+  }
 
   useEffect(() => {
     const listener = () => {
@@ -54,12 +71,7 @@ export default function Journey() {
             className="btn btn-neutral btn-small border-token-border-medium relative flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-lg border focus:ring-0"
             onClick={() => {
               setOpenDialog(true)
-              setImageError("")
-              setImageData("")
-              setShowImage(true)
-              setTimeout(() => {
-                convertToPng()
-              })
+              startConvertImage()
             }}>
             <Share className="icon-md" />
           </button>
@@ -71,13 +83,24 @@ export default function Journey() {
             <div ref={timelineRef}>
               {showImage && (
                 <p className="pb-3 pt-8 text-center text-xl font-bold">
-                  My ChatGPT Journey
+                  {shareOptions.title}
                 </p>
               )}
-              <Timeline data={journeyData} />
+              <Timeline
+                data={journeyData}
+                showUser={!showImage || shareOptions.shareName}
+                showEvents={!showImage || shareOptions.shareTimeline}
+              />
               {showImage && (
                 <p className="text-token-text-tertiary px-3 pb-4 pt-2 text-right text-sm">
-                  Create your ChatGPT journey at https://chatgptsugar.xyz
+                  Generated on{" "}
+                  {date.toLocaleDateString("en-US", {
+                    weekday: undefined,
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  })}{" "}
+                  by https://chatgptsugar.xyz
                 </p>
               )}
             </div>
@@ -88,66 +111,24 @@ export default function Journey() {
       </div>
       {openDialog && (
         <Dialog
-          children={<ShareDialog imageData={imageData} error={imageError} />}
+          children={
+            <ShareDialog
+              options={shareOptions}
+              date={date}
+              imageData={imageData}
+              error={imageError}
+              onUpdateOptions={(options) => {
+                setShareOptions(options)
+                startConvertImage()
+              }}
+            />
+          }
           title="Share your journey"
           onClose={() => {
             setOpenDialog(false)
           }}
         />
       )}
-    </div>
-  )
-}
-
-function ShareDialog({
-  imageData,
-  error
-}: {
-  imageData?: string
-  error?: string
-}) {
-  function download(imageData: string) {
-    const a = document.createElement("a")
-    a.style.display = "none"
-    a.href = imageData
-    a.download = `ChatGPT-journey.png`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-w-80 flex-col items-center">
-        <div className="flex flex-col gap-2 text-red-500">
-          <p className="text-xl font-medium">Error generating image</p>
-          <p>{error}</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!imageData) {
-    return (
-      <div className="flex min-w-80 flex-col items-center justify-center">
-        <Spinner className="h-8 w-8" />
-        <p className="text-token-text-tertiary text-sm">
-          Generating image for sharing...
-        </p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      <img className="rounded-xl border" src={imageData} alt="timeline image" />
-      <button
-        className="btn btn-primary relative m-auto"
-        onClick={() => {
-          download(imageData)
-        }}>
-        Download image
-      </button>
     </div>
   )
 }

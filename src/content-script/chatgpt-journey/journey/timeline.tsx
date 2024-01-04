@@ -7,7 +7,15 @@ import { Event, JourneyData, JourneyStats } from "../data"
 
 type DisplayEvent = Omit<Event, "date"> & { date: Date | string; left: boolean }
 
-export default function Timeline({ data }: { data: JourneyData }) {
+export default function Timeline({
+  data,
+  showUser,
+  showEvents
+}: {
+  data: JourneyData
+  showUser: boolean
+  showEvents: boolean
+}) {
   const events = useMemo(() => {
     const events: DisplayEvent[] = []
     let i = 0,
@@ -50,24 +58,28 @@ export default function Timeline({ data }: { data: JourneyData }) {
 
   return (
     <div className="flex w-full flex-col items-center gap-8 px-2 py-5">
-      <Header user={data.user} stats={data.stats} />
+      <Header user={showUser ? data.user : null} stats={data.stats} />
       <Stats stats={data.stats} />
-      <Events events={events} />
+      {showEvents && <Events events={events} />}
     </div>
   )
 }
 
-function Header({ user, stats }: { user: User; stats: JourneyStats }) {
+function Header({ user, stats }: { user: User | null; stats: JourneyStats }) {
   return (
     <div className="flex w-full flex-col items-center">
-      <div className="gizmo-shadow-stroke flex h-20 w-20 items-center justify-center overflow-hidden rounded-full">
-        <div className="relative flex">
-          <img alt="user photo" src={user.picture} />
-        </div>
-      </div>
-      <div className="mt-2 w-full text-center text-lg font-bold">
-        {user.name}
-      </div>
+      {user && (
+        <>
+          <div className="gizmo-shadow-stroke flex h-20 w-20 items-center justify-center overflow-hidden rounded-full">
+            <div className="relative flex">
+              <img alt="user photo" src={user.picture} />
+            </div>
+          </div>
+          <div className="mt-2 w-full text-center text-lg font-bold">
+            {user.name}
+          </div>
+        </>
+      )}
       <div className="w-full text-center text-sm font-normal">
         🌟 Enjoying the journey for{" "}
         <span className="text-base font-medium text-green-600">

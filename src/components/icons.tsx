@@ -44,3 +44,78 @@ export const Share: React.FC<IconProps> = ({ className = "w-5 h-5" }) => {
     </svg>
   )
 }
+
+export const Edit: React.FC<IconProps> = ({ className = "w-5 h-5" }) => {
+  return (
+    <svg
+      className={className}
+      stroke="currentColor"
+      fill="none"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      height="1em"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 20h9"></path>
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+    </svg>
+  )
+}
+
+export const Close: React.FC<IconProps> = ({ className = "w-5 h-5" }) => {
+  return (
+    <svg
+      className={className}
+      stroke="currentColor"
+      fill="none"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      height="20"
+      width="20"
+      xmlns="http://www.w3.org/2000/svg">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  )
+}
+
+export const More: React.FC<IconProps> = ({ className = "w-5 h-5" }) => {
+  return (
+    <svg
+      className={className}
+      stroke="currentColor"
+      fill="currentColor"
+      strokeWidth="0"
+      viewBox="0 0 20 20"
+      height="1em"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"></path>
+    </svg>
+  )
+}
+
+export const Check: React.FC<IconProps> = ({ className = "w-5 h-5" }) => {
+  return (
+    <svg
+      className={className}
+      stroke="currentColor"
+      fill="currentColor"
+      strokeWidth="0"
+      viewBox="0 0 512 512"
+      height="1em"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg">
+      <path
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="32"
+        d="M416 128L192 384l-96-96"></path>
+    </svg>
+  )
+}
