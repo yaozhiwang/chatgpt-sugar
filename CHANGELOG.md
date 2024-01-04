@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.0.4] - 2024-01-04
+
+### Added
+
+- ChatGPT Journey
+  - Add options for sharing
+
 ## [v0.0.3] - 2024-01-03
 
 ### Fixed
