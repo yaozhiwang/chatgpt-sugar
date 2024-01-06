@@ -1,0 +1,57 @@
+= Stats of Messsages Calculation
+:table-caption!:
+
+We first get the list of conversations, then for each conversation we scan all the messages in it and calculate the stats.
+
+== Total Messages
+
+The messages with `author.role == "user"` are sent by users. We add up all these messages as the `Total Messages`.
+
+== Vision and Voice Messages
+
+`Vision` and `Voice` messages are calculated from user messages as follows:
+
+[cols="2*^.^"]
+|===
+| Type | Rule
+
+| Vision | content.content_type == "multimodal_text"
+| Voice  | metadata.voice_mode_message == true
+|===
+
+== Image Messages
+
+For one turn of image creation, we account it for one `GPT-4 Message` and one `Image Message`.
+
+Details are:
+
+.Message flow of an image creation
+[cols="5*^.^"]
+|===
+| User |     | Assistant |         | Tool
+
+|<start_turn>     e| →M1:"Create a logo for me" s| gpt-4      2.2+|
+   2.2+|     e| ↓M2:"Creating a logo that ..."
+             s| gpt-4     e| →M3:{"size":"1024x1024","prompt":"An image for ..."}  .3+s| dalle.text2im
+.2+|<end_turn>      .2+e| ←M6:"Here is a conceptual logo for..."         .2+s| gpt-4     e| ←M4:image_url
+                          e| ←M5:"\nDALL·E displayed 1 images. The images are already plainly visible..."
+|===
+
+.Properties of message sent by GPT-4
+[cols="5*^.^"]
+|===
+| ID | content_type | recipient | end_turn | model_slug
+
+| M2 | text | all | false | gpt-4
+| M3 | text | dalle.text2im | false | gpt-4
+| M6 | text | all | true | gpt-4
+|===
+
+.Properties of message sent by DALL·E
+[cols="4*^.^"]
+|===
+| ID | name | content_type | recipient
+
+| M4 | dalle.text2im | multimodal_text | all
+| M5 | dalle.text2im | text | all
+|===
