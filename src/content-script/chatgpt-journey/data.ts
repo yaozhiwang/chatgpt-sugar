@@ -20,7 +20,7 @@ export type Event = {
 export type JourneyStats = {
   age: number
   activeDays: number
-  conversations: { total: number; shared: number }
+  conversations: { total: number; shared: number; archived: number }
   messages: {
     total: number
     gpt4: number
@@ -223,7 +223,11 @@ async function collectStatsAndUserEvents(
       (Date.now() - user.created.getTime()) / (1000 * 60 * 60 * 24)
     ),
     activeDays: 0,
-    conversations: { total: conversations.length, shared: shared.total },
+    conversations: {
+      total: conversations.length,
+      shared: shared.total,
+      archived: 0
+    },
     messages: {
       total: 0,
       gpt4: 0,
@@ -303,6 +307,9 @@ async function collectStatsAndUserEvents(
   const gptsConversations = new Map<string, number>()
 
   for (const conversation of conversations) {
+    if (conversation.is_archived) {
+      stats.conversations.archived += 1
+    }
     const gptId = conversation.gizmo_id
     if (gptId) {
       gptsConversations.set(gptId, (gptsConversations.get(gptId) ?? 0) + 1)

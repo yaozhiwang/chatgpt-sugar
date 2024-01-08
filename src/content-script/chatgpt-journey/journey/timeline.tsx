@@ -102,7 +102,7 @@ function Stats({ stats }: { stats: JourneyStats }) {
   const data = [
     {
       total: { value: stats.conversations.total, title: "Total Conversations" },
-      details: [
+      elements: [
         {
           value: Math.round(stats.conversations.total / stats.activeDays),
           title: "Conversations per day"
@@ -114,6 +114,10 @@ function Stats({ stats }: { stats: JourneyStats }) {
         {
           value: stats.conversations.shared,
           title: "Shared conversations"
+        },
+        {
+          value: stats.conversations.archived,
+          title: "Archived conversations"
         }
       ]
     },
@@ -204,18 +208,20 @@ function Stats({ stats }: { stats: JourneyStats }) {
                 </div>
               )}
 
-              <div className="grid w-full grid-cols-3 gap-y-4">
-                {details.map((item, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <p className="text-xl font-medium text-green-600">
-                      {item.value}
-                    </p>
-                    <p className="w-full text-center text-sm font-normal">
-                      {item.title}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              {details && (
+                <div className="grid w-full grid-cols-3 gap-y-4">
+                  {details.map((item, i) => (
+                    <div key={i} className="flex flex-col items-center">
+                      <p className="text-xl font-medium text-green-600">
+                        {item.value}
+                      </p>
+                      <p className="w-full text-center text-sm font-normal">
+                        {item.title}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </>
@@ -234,8 +240,8 @@ function Stats({ stats }: { stats: JourneyStats }) {
             ))}
           </div>
 
-          <div className="grid w-full grid-cols-3 gap-y-4">
-            {data[0].details.map((item, i) => (
+          <div className="grid w-full grid-cols-2 gap-y-4">
+            {data[0].elements.map((item, i) => (
               <div key={i} className="flex flex-col items-center">
                 <p className="text-xl font-medium text-green-600">
                   {item.value}

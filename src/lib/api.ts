@@ -36,7 +36,7 @@ export type Conversation = {
   update_time: Date
   title: string
   gizmo_id: string
-  is_archive: boolean
+  is_archived: boolean
   mapping: {
     [key: string]: MessageNode
   }
@@ -127,16 +127,30 @@ const NumberConverter = (str?: string | null): number => {
   }
 }
 
-export async function listAllConversations(): Promise<Conversation[]> {
+export async function listAllConversations(
+  includesArchived: boolean = true
+): Promise<Conversation[]> {
+  const conversations = await doListAllConversations(false)
+  if (includesArchived) {
+    conversations.push(...(await doListAllConversations(true)))
+  }
+
+  return conversations.sort(
+    (a, b) => a.create_time.getTime() - b.create_time.getTime()
+  )
+}
+
+async function doListAllConversations(archived: boolean) {
   const conversations: Conversation[] = []
+
   const limit = 50
 
-  const data = await listConversations({ offset: 0, limit })
+  const data = await listConversations({ offset: 0, limit, archived })
   conversations.push(...data.items)
   const total = data.total
 
   const res = await runBatch(
-    (i) => listConversations({ offset: limit + i * limit, limit }),
+    (i) => listConversations({ offset: limit + i * limit, limit, archived }),
     Math.ceil((total - limit) / limit)
   )
   res.forEach((ret) => {
@@ -147,21 +161,23 @@ export async function listAllConversations(): Promise<Conversation[]> {
     }
   })
 
-  return conversations.reverse()
+  return conversations
 }
 
 export async function listConversations({
   offset,
   limit,
+  archived,
   order = "created"
 }: {
   offset: number
   limit: number
+  archived: boolean
   order?: string
 }) {
   const data = await requestBackendAPI(
     "GET",
-    `/conversations?offset=${offset}&limit=${limit}&order=${order}`
+    `/conversations?offset=${offset}&limit=${limit}&order=${order}&is_archived=${archived}`
   )
 
   return { ...data, items: data.items.map(ConversationConverter) }
