@@ -16,7 +16,11 @@ export type Message = {
   end_turn: boolean
   create_time: Date
   recipient: string
-  metadata: { model_slug?: string; voice_mode_message?: boolean }
+  metadata: {
+    model_slug?: string
+    voice_mode_message?: boolean
+    attachments?: { name: string; id: string }[]
+  }
 }
 
 export type MessageNode = {

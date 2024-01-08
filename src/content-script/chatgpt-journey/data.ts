@@ -29,6 +29,7 @@ export type JourneyStats = {
     voice: number
     webBrowser: number
     codeInterpreter: number
+    file: number
   }
   gpts: {
     mine: {
@@ -136,6 +137,7 @@ enum UserEventName {
   FirstVoice = "First Voice Conversation",
   FirstWebBrowser = "First Web Browser Conversation",
   FirstCodeInterpreter = "First Code Interpreter Conversation",
+  FirstFile = "First Conversation with a File",
   FirstGPTs = "First GPTs Conversation",
   FirstCreateGPTs = "Create First GPTs"
 }
@@ -199,6 +201,8 @@ class UserEvent {
         return "Get up-to-date information from Web with ChatGPT."
       case UserEventName.FirstCodeInterpreter:
         return "Unleash the power of Python in ChatGPT."
+      case UserEventName.FirstFile:
+        return "Chat about your file."
       case UserEventName.FirstGPTs:
         return "Exploring new dimensions with diverse capabilities."
       case UserEventName.FirstCreateGPTs:
@@ -227,7 +231,8 @@ async function collectStatsAndUserEvents(
       image: 0,
       voice: 0,
       webBrowser: 0,
-      codeInterpreter: 0
+      codeInterpreter: 0,
+      file: 0
     },
     gpts: {
       mine: { public: 0, private: 0, chats: { public: 0, private: 0 } },
@@ -272,6 +277,9 @@ async function collectStatsAndUserEvents(
     }),
     [UserEventName.FirstCodeInterpreter]: new UserEvent({
       name: UserEventName.FirstCodeInterpreter
+    }),
+    [UserEventName.FirstFile]: new UserEvent({
+      name: UserEventName.FirstFile
     }),
     [UserEventName.FirstGPTs]: new UserEvent({
       name: UserEventName.FirstGPTs
@@ -329,7 +337,8 @@ async function collectStatsAndUserEvents(
       image: 0,
       voice: 0,
       webBrowser: 0,
-      codeInterpreter: 0
+      codeInterpreter: 0,
+      file: 0
     }
     const toolMsg = new Map<string, string[]>()
     for (const msgId in conversation.mapping) {
@@ -347,6 +356,13 @@ async function collectStatsAndUserEvents(
             if (!firstVision.conversationId) {
               firstVision.conversationId = conversation.id
               firstVision.date = conversation.create_time
+            }
+          } else if (message.metadata.attachments) {
+            numMessages.file += 1
+            const firstFile = userEvents[UserEventName.FirstFile]
+            if (!firstFile.conversationId) {
+              firstFile.conversationId = conversation.id
+              firstFile.date = conversation.create_time
             }
           }
           if (message.metadata.voice_mode_message) {
@@ -441,6 +457,7 @@ async function collectStatsAndUserEvents(
     stats.messages.voice += numMessages.voice
     stats.messages.webBrowser += numMessages.webBrowser
     stats.messages.codeInterpreter += numMessages.codeInterpreter
+    stats.messages.file += numMessages.file
   }
 
   for (const [id, count] of gptsConversations) {

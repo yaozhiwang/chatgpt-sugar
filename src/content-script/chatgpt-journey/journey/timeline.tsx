@@ -149,6 +149,10 @@ function Stats({ stats }: { stats: JourneyStats }) {
         {
           value: stats.messages.codeInterpreter,
           title: "Messages using Python"
+        },
+        {
+          value: stats.messages.file,
+          title: "Messages with File"
         }
       ]
     }
