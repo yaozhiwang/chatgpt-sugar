@@ -13,6 +13,7 @@ export type Message = {
     language?: string
     text?: string
   }
+  end_turn: boolean
   create_time: Date
   recipient: string
   metadata: { model_slug?: string; voice_mode_message?: boolean }

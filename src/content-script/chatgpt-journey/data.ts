@@ -331,6 +331,7 @@ async function collectStatsAndUserEvents(
       webBrowser: 0,
       codeInterpreter: 0
     }
+    const toolMsg = new Map<string, string[]>()
     for (const msgId in conversation.mapping) {
       const message = conversation.mapping[msgId].message
       if (!message || message.author?.role === "system") {
@@ -364,21 +365,32 @@ async function collectStatsAndUserEvents(
         case "assistant":
           if (message.content?.content_type === "code") {
             let first: UserEvent | null = null
+            let tool: string | null = null
             if (message.recipient === "dalle.text2im") {
-              numMessages.image += 1
+              tool = message.recipient
               first = userEvents[UserEventName.FirstImage]
             } else if (message.recipient === "browser") {
-              numMessages.webBrowser += 1
+              tool = message.recipient
               first = userEvents[UserEventName.FirstWebBrowser]
             } else if (message.recipient === "python") {
-              numMessages.codeInterpreter += 1
+              tool = message.recipient
               first = userEvents[UserEventName.FirstCodeInterpreter]
             }
             if (first && !first.conversationId) {
               first.conversationId = conversation.id
               first.date = conversation.create_time
             }
-          } else if (message.metadata?.model_slug === "gpt-4") {
+            if (tool) {
+              if (toolMsg.has(tool)) {
+                toolMsg.get(tool)!.push(message.id)
+              } else {
+                toolMsg.set(tool, [message.id])
+              }
+            }
+          } else if (
+            message.metadata?.model_slug === "gpt-4" &&
+            message.end_turn
+          ) {
             numMessages.gpt4 += 1
 
             const firstGPT4 = userEvents[UserEventName.FirstGPT4]
@@ -388,6 +400,30 @@ async function collectStatsAndUserEvents(
             }
           }
           break
+      }
+    }
+
+    for (const [tool, msgIds] of toolMsg) {
+      let num = 1
+      if (msgIds.length > 1) {
+        // find out which messages belong to a same turn
+        const turns = new Map<string, boolean>()
+        for (const id of msgIds) {
+          let msg = conversation.mapping[conversation.mapping[id].parent]
+          while (msg.message.author.role !== "user" && msg.parent) {
+            msg = conversation.mapping[msg.parent]
+          }
+          turns.set(msg.id, true)
+        }
+        num = turns.size
+      }
+
+      if (tool === "dalle.text2im") {
+        numMessages.image += num
+      } else if (tool === "browser") {
+        numMessages.webBrowser += num
+      } else if (tool === "python") {
+        numMessages.codeInterpreter += num
       }
     }
 
