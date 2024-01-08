@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
 import { Dialog } from "@/components/dialog"
-import { Share } from "@/components/icons"
+import { NewTab, Share } from "@/components/icons"
 import { detectTheme } from "@/lib/utils"
 import { useToPng } from "@hugocxl/react-to-image"
 
@@ -80,29 +80,39 @@ export default function Journey() {
       <div className="mx-auto justify-center px-4 py-2 text-base md:gap-6">
         <div className="mx-auto flex flex-1 gap-3 text-base md:max-w-3xl md:px-5 lg:max-w-[40rem] lg:px-1 xl:max-w-[48rem] xl:px-5">
           {journeyData ? (
-            <div ref={timelineRef}>
-              {showImage && (
-                <p className="pb-3 pt-8 text-center text-xl font-bold">
-                  {shareOptions.title}
-                </p>
-              )}
-              <Timeline
-                data={journeyData}
-                showUser={!showImage || shareOptions.shareName}
-                showEvents={!showImage || shareOptions.shareTimeline}
-              />
-              {showImage && (
-                <p className="text-token-text-tertiary px-3 pb-4 pt-2 text-right text-sm">
-                  Generated on{" "}
-                  {date.toLocaleDateString("en-US", {
-                    weekday: undefined,
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric"
-                  })}{" "}
-                  by https://chatgptsugar.xyz
-                </p>
-              )}
+            <div className="flex w-full flex-col">
+              <div ref={timelineRef}>
+                {showImage && (
+                  <p className="pb-3 pt-8 text-center text-xl font-bold">
+                    {shareOptions.title}
+                  </p>
+                )}
+                <Timeline
+                  data={journeyData}
+                  showUser={!showImage || shareOptions.shareName}
+                  showEvents={!showImage || shareOptions.shareTimeline}
+                />
+                {showImage && (
+                  <p className="text-token-text-tertiary px-3 pb-4 pt-2 text-right text-sm">
+                    Generated on{" "}
+                    {date.toLocaleDateString("en-US", {
+                      weekday: undefined,
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric"
+                    })}{" "}
+                    by https://chatgptsugar.xyz
+                  </p>
+                )}
+              </div>
+              <a
+                href="https://github.com/yaozhiwang/chatgpt-sugar/blob/master/src/doc/messages.adoc"
+                className="my-4 flex items-center justify-end gap-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+                target="_blank"
+                rel="noreferrer">
+                Learn more about how we collect the stats
+                <NewTab className="icon-sm" />
+              </a>
             </div>
           ) : (
             <Waiting onGenerated={setJourneData} />
