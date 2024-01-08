@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.0.5] - 2024-01-08
+
+### Fixed
+
+- ChatGPT Journey
+  - Messages stats calculation
+
+### Added
+
+- ChatGPT Journey
+  - Show GPT-3.5 messages
+  - Add File messages
+  - Count archived conversations
+
 ## [v0.0.4] - 2024-01-04
 
 ### Added
