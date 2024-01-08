@@ -119,10 +119,20 @@ function Stats({ stats }: { stats: JourneyStats }) {
     },
     {
       total: { value: stats.messages.total, title: "Total messages" },
-      details: [
+      elements: [
         {
           value: stats.messages.gpt4,
           title: "GPT4 messsages"
+        },
+        {
+          value: stats.messages.total - stats.messages.gpt4,
+          title: "GPT-3.5 Messages"
+        }
+      ],
+      details: [
+        {
+          value: stats.messages.voice,
+          title: "Voice messages"
         },
         {
           value: stats.messages.vision,
@@ -130,11 +140,7 @@ function Stats({ stats }: { stats: JourneyStats }) {
         },
         {
           value: stats.messages.image,
-          title: "Images created"
-        },
-        {
-          value: stats.messages.voice,
-          title: "Voice messages"
+          title: "Image messages"
         },
         {
           value: stats.messages.webBrowser,
@@ -166,7 +172,7 @@ function Stats({ stats }: { stats: JourneyStats }) {
     <div className="flex w-full flex-col gap-4">
       {plusMessages > 0 ? (
         <>
-          {data.map(({ total, details }, i) => (
+          {data.map(({ total, elements, details }, i) => (
             <div
               key={i}
               className="border-token-border-medium flex w-full flex-col gap-8 rounded-lg border px-2 py-4">
@@ -178,6 +184,21 @@ function Stats({ stats }: { stats: JourneyStats }) {
                   {total.title}
                 </p>
               </div>
+
+              {elements && (
+                <div className="grid w-full grid-cols-2 gap-y-4">
+                  {elements.map((item, i) => (
+                    <div key={i} className="flex flex-col items-center">
+                      <p className="text-2xl font-bold text-green-600">
+                        {item.value}
+                      </p>
+                      <p className="w-full text-center text-sm font-normal">
+                        {item.title}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="grid w-full grid-cols-3 gap-y-4">
                 {details.map((item, i) => (
