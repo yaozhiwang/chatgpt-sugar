@@ -99,6 +99,13 @@ const ChatGPTEvents: Event[] = [
     name: "GPTs launch",
     link: "https://openai.com/blog/introducing-gpts",
     description: "Create your own versions of ChatGPT without coding"
+  },
+  {
+    date: new Date("2024-01-10"),
+    name: "GPT Store launch",
+    link: "https://openai.com/blog/introducing-the-gpt-store",
+    description:
+      "The App store for GPTs. Also lanuch ChatGPT Team plan and start rolling out personalization and long-term memory."
   }
 ]
 
