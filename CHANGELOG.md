@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.0.6] - 2024-01-11
+
+### Added
+
+- ChatGPT Journey
+  - Add GPT Store lauch event
+
 ## [v0.0.5] - 2024-01-08
 
 ### Fixed
