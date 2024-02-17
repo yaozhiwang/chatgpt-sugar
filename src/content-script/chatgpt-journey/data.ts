@@ -106,6 +106,13 @@ const ChatGPTEvents: Event[] = [
     link: "https://openai.com/blog/introducing-the-gpt-store",
     description:
       "The App store for GPTs. Also lanuch ChatGPT Team plan and start rolling out personalization and long-term memory."
+  },
+  {
+    date: new Date("2024-02-13"),
+    name: "ChatGPT Gets Memories",
+    link: "https://openai.com/blog/memory-and-new-controls-for-chatgpt",
+    description:
+      "Remembering things you discuss across all chats saves you from having to repeat information and makes future conversations more helpful. "
   }
 ]
 
