@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.0.7] - 2024-02-17
+
+### Added
+
+- ChatGPT Journey
+  - Add ChatGPT Memory event
+
 ## [v0.0.6] - 2024-01-11
 
 ### Added
