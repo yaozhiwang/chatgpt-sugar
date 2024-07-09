@@ -22,11 +22,11 @@ export default defineManifest(async (env) => {
         "128": "src/assets/logo.png"
       },
       action: {},
-      host_permissions: ["https://*.openai.com/"],
+      host_permissions: ["https://chatgpt.com/"],
       permissions: [],
       content_scripts: [
         {
-          matches: ["https://chat.openai.com/*"],
+          matches: ["https://chatgpt.com/*"],
           js: ["src/content-script/index.tsx"]
         }
       ]

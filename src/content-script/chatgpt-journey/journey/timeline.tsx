@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 
 import { User } from "@/lib/api"
+import { ROOT_URL } from "@/lib/config"
 import { classNames } from "@/lib/utils"
 
 import { Event, JourneyData, JourneyStats } from "../data"
@@ -50,7 +51,7 @@ export default function Timeline({
       date: "Today",
       description:
         "Your journey hasn't ended. Continue to discover and engage with ChatGPT’s evolving landscape.",
-      link: "https://chat.openai.com/",
+      link: ROOT_URL,
       left: false
     })
     return events

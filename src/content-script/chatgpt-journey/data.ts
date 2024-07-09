@@ -9,6 +9,7 @@ import {
   listAllConversations,
   listMyGPTs
 } from "@/lib/api"
+import { ROOT_URL } from "@/lib/config"
 
 export type Event = {
   date: Date
@@ -186,11 +187,11 @@ class UserEvent {
 
   getLink(): string {
     if (this.name === UserEventName.FirstGPTs) {
-      return `https://chat.openai.com/g/${this.gptsUrl}/c/${this.conversationId}`
+      return `${ROOT_URL}/g/${this.gptsUrl}/c/${this.conversationId}`
     } else if (this.name === UserEventName.FirstCreateGPTs) {
-      return `https://chat.openai.com/g/${this.gptsUrl}`
+      return `${ROOT_URL}/g/${this.gptsUrl}`
     }
-    return `https://chat.openai.com/c/${this.conversationId}`
+    return `${ROOT_URL}/c/${this.conversationId}`
   }
 
   getDescription(): string {
@@ -517,7 +518,7 @@ async function collectStatsAndUserEvents(
     events.push({
       name: "First Shared Conversation",
       date: shared.items[0].create_time,
-      link: `https://chat.openai.com/share/${shared.items[0].id}`,
+      link: `${ROOT_URL}/share/${shared.items[0].id}`,
       description:
         "Thank you for spreading the word and inspiring others with your AI encounter."
     })

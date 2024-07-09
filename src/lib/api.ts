@@ -1,3 +1,4 @@
+import { ROOT_URL } from "./config"
 import { AppError, ErrorCode } from "./error"
 import { runBatch } from "./utils"
 
@@ -168,7 +169,7 @@ export async function listConversations({
   offset,
   limit,
   archived,
-  order = "created"
+  order = "updated"
 }: {
   offset: number
   limit: number
@@ -269,7 +270,7 @@ async function requestBackendAPI(
     accessToken = await getAccessToken()
   }
 
-  const resp = await fetch(`https://chat.openai.com/${endpoint}/${path}`, {
+  const resp = await fetch(`${ROOT_URL}/${endpoint}/${path}`, {
     method,
     headers: {
       "Content-Type": "application/json",
@@ -296,7 +297,7 @@ async function requestBackendAPI(
 }
 
 async function getAccessToken(): Promise<string> {
-  const resp = await fetch("https://chat.openai.com/api/auth/session")
+  const resp = await fetch(`${ROOT_URL}/api/auth/session`)
   if (resp.status === 403) {
     throw new AppError(
       "Please pass Cloudflare check",
