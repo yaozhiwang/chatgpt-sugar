@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.0.8] - 2024-07-09
+
+### Fixed
+
+- New domain chatgpt.com
+
 ## [v0.0.7] - 2024-02-17
 
 ### Added
