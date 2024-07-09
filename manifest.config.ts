@@ -35,7 +35,7 @@ export default defineManifest(async (env) => {
       browser_specific_settings: {
         gecko: {
           id: "firefox@chatgptsugar.xyz",
-          strict_min_version: "42.0"
+          strict_min_version: "58.0"
         }
       }
     })
